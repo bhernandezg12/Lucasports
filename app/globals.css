@@ -1,55 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;900&display=swap');
 
-/* ✅ Tailwind v4: usa @import en lugar de @tailwind directives */
+/* ✅ Tailwind v4: reemplaza los 3 @tailwind directives por esta sola línea */
 @import "tailwindcss";
 
-:root {
-  --amarillo: #FCD116;
-  --azul: #003893;
-  --rojo: #CE1126;
-  --blanco: #FFFFFF;
-  --gris-oscuro: #0A0A0A;
-  --gris: #1a1a2e;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Barlow', sans-serif;
-  background-color: #0A0A0A;
-  color: #FFFFFF;
-  overflow-x: hidden;
-}
-
-/* Animaciones */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-40px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.animate-fade-up {
-  animation: fadeInUp 0.7s ease forwards;
-}
-
-.animate-slide-left {
-  animation: slideInLeft 0.6s ease forwards;
-}
-
-/* ✅ Clases de botones con CSS puro (sin @apply) */
-.btn-primary {
+/* ✅ Tailwind v4: clases propias con @utility (reemplaza @apply) */
+@utility btn-primary {
   background-color: #FCD116;
   color: #000000;
   font-family: 'Bebas Neue', sans-serif;
@@ -63,12 +18,7 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
-.btn-primary:hover {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-.btn-secondary {
+@utility btn-secondary {
   background-color: transparent;
   color: #FCD116;
   font-family: 'Bebas Neue', sans-serif;
@@ -82,25 +32,56 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
-.btn-secondary:hover {
-  background-color: #FCD116;
-  color: #000000;
-}
-
-/* ✅ Card de producto con CSS puro */
-.card-producto {
+@utility card-producto {
   background-color: #18181b;
   border: 1px solid #27272a;
   overflow: hidden;
   transition: border-color 0.3s, transform 0.3s;
 }
 
-.card-producto:hover {
-  border-color: #FCD116;
-  transform: translateY(-6px);
+@utility animate-fade-up {
+  animation: fadeInUp 0.7s ease forwards;
 }
 
-/* Scrollbar personalizada */
+@utility animate-slide-left {
+  animation: slideInLeft 0.6s ease forwards;
+}
+
+/* Variables CSS */
+:root {
+  --amarillo: #FCD116;
+  --azul:     #003893;
+  --rojo:     #CE1126;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Barlow', sans-serif;
+  background-color: #0A0A0A;
+  color: #FFFFFF;
+  overflow-x: hidden;
+}
+
+/* Hover states */
+.btn-primary:hover   { background-color: #ffffff; color: #000; }
+.btn-secondary:hover { background-color: #FCD116; color: #000; }
+.card-producto:hover { border-color: #FCD116; transform: translateY(-6px); }
+
+/* Animaciones */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar       { width: 6px; }
 ::-webkit-scrollbar-track { background: #0A0A0A; }
 ::-webkit-scrollbar-thumb { background: #FCD116; }

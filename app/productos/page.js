@@ -1,163 +1,191 @@
 'use client';
-import { useState } from 'react';
-import { useCart } from '@/context/CartContext';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import Link from 'next/link';
-import { Trash2, Plus, Minus, CheckCircle } from 'lucide-react';
-
-export default function CarritoPage() {
-  const { cart, total, removeFromCart, updateQuantity, clearCart } = useCart();
-  const [form, setForm] = useState({ nombre: '', telefono: '', direccion: '', ciudad: '', notas: '' });
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleSubmit = async () => {
-    if (!form.nombre || !form.telefono || !form.direccion || !form.ciudad) {
-      setError('Por favor completa todos los campos requeridos');
-      return;
-    }
-    setLoading(true);
-    setError('');
-    try {
-      await addDoc(collection(db, 'pedidos'), {
-        cliente: form,
-        productos: cart,
-        total,
-        estado: 'pendiente',
-        fecha: serverTimestamp(),
-      });
-      clearCart();
-      setSuccess(true);
-    } catch (e) {
-      setError('Error al procesar el pedido. Intenta de nuevo.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (success) {
-    return (
-      <div style={{ paddingTop: 64, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="text-center px-4">
-          <CheckCircle size={64} color="#FCD116" style={{ margin: '0 auto 20px' }} />
-          <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '3rem', color: '#fff', marginBottom: 12 }}>
-            ¡PEDIDO RECIBIDO!
-          </h1>
-          <p style={{ color: '#aaa', marginBottom: 8 }}>Gracias por tu compra. Te contactaremos pronto para confirmar.</p>
-          <p style={{ color: '#FCD116', marginBottom: 32 }}>📱 Te escribiremos al: {form.telefono}</p>
-          <Link href="/productos">
-            <button style={{ background: '#FCD116', color: '#000', fontFamily: 'Bebas Neue, sans-serif', fontSize: '1rem', letterSpacing: '0.12em', padding: '14px 36px', border: 'none', cursor: 'pointer' }}>
-              SEGUIR COMPRANDO
-            </button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (cart.length === 0) {
-    return (
-      <div style={{ paddingTop: 64, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="text-center px-4">
-          <p style={{ fontSize: '4rem' }}>🛒</p>
-          <h2 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '2rem', color: '#fff', margin: '16px 0' }}>TU CARRITO ESTÁ VACÍO</h2>
-          <Link href="/productos">
-            <button style={{ background: '#FCD116', color: '#000', fontFamily: 'Bebas Neue, sans-serif', fontSize: '1rem', letterSpacing: '0.12em', padding: '14px 36px', border: 'none', cursor: 'pointer' }}>
-              VER PRODUCTOS
-            </button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
+import ProductCard from '@/components/ProductCard';
+ 
+const CATEGORIAS = ['Todos', 'Oficial', 'Entrenamiento', 'Edición Especial'];
+ 
+// Productos estáticos mientras no haya datos en Firebase
+const PRODUCTOS_ESTATICOS = [
+  {
+    id: 'static-1',
+    nombre: 'Camiseta Oficial Local Colombia 2026',
+    precio: 0,
+    categoria: 'Oficial',
+    especial: 'MUNDIAL 2026',
+    descripcion: 'La camiseta oficial de la Selección Colombia para el Mundial 2026. Versión local con los colores patrios. Tela de alta calidad, corte moderno.',
+    tallas: ['S', 'M', 'L', 'XL', 'XXL'],
+    imageUrl: '',
+  },
+  {
+    id: 'static-2',
+    nombre: 'Camiseta Entrenamiento Oficial Blanca',
+    precio: 0,
+    categoria: 'Entrenamiento',
+    descripcion: 'Camiseta oficial de entrenamiento de la Selección Colombia. Color blanco, tela deportiva transpirable. Perfecta para el día a día.',
+    tallas: ['S', 'M', 'L', 'XL', 'XXL'],
+    imageUrl: '',
+  },
+  {
+    id: 'static-3',
+    nombre: 'Camiseta Conmemorativa 100 Años',
+    precio: 0,
+    categoria: 'Edición Especial',
+    especial: 'EDICIÓN LIMITADA',
+    descripcion: 'Edición conmemorativa por los 100 años de la Federación Colombiana de Fútbol. Diseño exclusivo, detalle especial en cuello y mangas.',
+    tallas: ['S', 'M', 'L', 'XL', 'XXL'],
+    imageUrl: '',
+  },
+];
+ 
+export default function ProductosPage() {
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [categoria, setCategoria] = useState('Todos');
+  const [busqueda, setBusqueda] = useState('');
+  const [usandoEstaticos, setUsandoEstaticos] = useState(false);
+ 
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'productos'));
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (data.length > 0) {
+          setProductos(data);
+        } else {
+          // Si no hay datos en Firebase, muestra los estáticos con precio a consultar
+          setProductos(PRODUCTOS_ESTATICOS);
+          setUsandoEstaticos(true);
+        }
+      } catch {
+        setProductos(PRODUCTOS_ESTATICOS);
+        setUsandoEstaticos(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProductos();
+  }, []);
+ 
+  const filtrados = productos.filter(p => {
+    const coincideCategoria = categoria === 'Todos' || p.categoria === categoria;
+    const coincideBusqueda = p.nombre?.toLowerCase().includes(busqueda.toLowerCase());
+    return coincideCategoria && coincideBusqueda;
+  });
+ 
   return (
-    <div style={{ paddingTop: 64, minHeight: '100vh', padding: '80px 16px 40px' }}>
-      <div className="max-w-6xl mx-auto">
-        <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '3rem', color: '#fff', marginBottom: 32 }}>
-          FINALIZAR PEDIDO
-        </h1>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Resumen */}
-          <div>
-            <h2 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.4rem', color: '#FCD116', marginBottom: 16, letterSpacing: '0.1em' }}>
-              RESUMEN
-            </h2>
-            <div className="space-y-3">
-              {cart.map((item, i) => (
-                <div key={i} style={{ background: '#111', border: '1px solid #222', padding: 16, display: 'flex', gap: 12, alignItems: 'center' }}>
-                  <div style={{ background: '#1a1a1a', width: 60, height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    {item.imageUrl ? <img src={item.imageUrl} alt="" style={{ width: 50, height: 50, objectFit: 'cover' }} /> : <span style={{ fontSize: '2rem' }}>👕</span>}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ color: '#fff', fontWeight: 600 }}>{item.nombre}</p>
-                    <p style={{ color: '#888', fontSize: '0.8rem' }}>Talla: {item.size}</p>
-                    <p style={{ color: '#FCD116' }}>${item.precio?.toLocaleString('es-CO')}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)} style={{ background: '#222', color: '#fff', width: 26, height: 26, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Minus size={12} /></button>
-                    <span style={{ color: '#fff', minWidth: 20, textAlign: 'center' }}>{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)} style={{ background: '#222', color: '#fff', width: 26, height: 26, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Plus size={12} /></button>
-                    <button onClick={() => removeFromCart(item.id, item.size)}><Trash2 size={16} color="#CE1126" /></button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div style={{ background: '#111', border: '1px solid #FCD11633', padding: 20, marginTop: 16 }}>
-              <div className="flex justify-between">
-                <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.3rem', color: '#999', letterSpacing: '0.1em' }}>TOTAL</span>
-                <span style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.5rem', color: '#FCD116' }}>
-                  ${total?.toLocaleString('es-CO')} COP
-                </span>
-              </div>
-            </div>
+    <div style={{ paddingTop: 64, minHeight: '100vh' }}>
+ 
+      {/* Header */}
+      <div style={{ background: 'linear-gradient(135deg, #003893, #001a4d)', padding: '65px 0 45px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', right: '-5%', top: '50%', transform: 'translateY(-50%)', width: '40%', height: '200%', borderRadius: '50%', border: '1px solid rgba(252,209,22,0.08)' }} />
+        <div className="max-w-7xl mx-auto px-4">
+          <p style={{ color: '#FCD11666', fontFamily: 'Bebas Neue, sans-serif', letterSpacing: '0.3em', fontSize: '0.8rem', marginBottom: 10 }}>
+            LUCASPORTS · MANIZALES
+          </p>
+          <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 'clamp(2.5rem, 6vw, 5rem)', color: '#fff', lineHeight: 0.9 }}>
+            CATÁLOGO DE<br /><span style={{ color: '#FCD116' }}>CAMISETAS</span>
+          </h1>
+          <p style={{ color: '#7799bb', marginTop: 14, fontSize: '0.9rem' }}>
+            💵 Pago contra entrega &nbsp;·&nbsp; 📦 Envíos a toda Colombia &nbsp;·&nbsp; 💬 Pedidos por WhatsApp
+          </p>
+        </div>
+      </div>
+ 
+      {/* Banda tricolor */}
+      <div style={{ display: 'flex', height: 6 }}>
+        <div style={{ flex: 4, background: '#FCD116' }} />
+        <div style={{ flex: 2, background: '#003893' }} />
+        <div style={{ flex: 2, background: '#CE1126' }} />
+      </div>
+ 
+      {/* Aviso precio */}
+      {usandoEstaticos && (
+        <div style={{ background: '#0d1a2e', borderBottom: '1px solid #003893' }}>
+          <div className="max-w-7xl mx-auto px-4 py-3">
+            <p style={{ color: '#7799bb', fontSize: '0.82rem', textAlign: 'center' }}>
+              💬 Los precios se consultan directamente por WhatsApp · <a href="https://wa.me/573174721539" target="_blank" style={{ color: '#25D366' }}>317 472 1539</a>
+            </p>
           </div>
-
-          {/* Formulario */}
-          <div>
-            <h2 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.4rem', color: '#FCD116', marginBottom: 16, letterSpacing: '0.1em' }}>
-              DATOS DE ENTREGA
-            </h2>
-            <div className="space-y-4">
-              {[
-                { key: 'nombre', label: 'Nombre completo *', placeholder: 'Tu nombre' },
-                { key: 'telefono', label: 'Teléfono / WhatsApp *', placeholder: 'Ej: 3001234567' },
-                { key: 'ciudad', label: 'Ciudad *', placeholder: 'Ej: Bogotá' },
-                { key: 'direccion', label: 'Dirección de entrega *', placeholder: 'Calle 123 # 45-67' },
-                { key: 'notas', label: 'Notas adicionales', placeholder: 'Ej: Apartamento, referencias...' },
-              ].map(f => (
-                <div key={f.key}>
-                  <label style={{ color: '#999', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', display: 'block', marginBottom: 6 }}>
-                    {f.label}
-                  </label>
-                  <input
-                    type="text" placeholder={f.placeholder}
-                    value={form[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
-                    style={{ width: '100%', background: '#111', border: '1px solid #333', color: '#fff', padding: '12px 16px', outline: 'none', fontSize: '0.9rem' }}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {error && <p style={{ color: '#CE1126', fontSize: '0.85rem', marginTop: 12 }}>{error}</p>}
-
-            <div style={{ marginTop: 16, padding: 16, background: '#0d1a0d', border: '1px solid #1a331a' }}>
-              <p style={{ color: '#4CAF50', fontSize: '0.85rem' }}>💳 <strong>Pago:</strong> Contra entrega o transferencia. Te confirmamos al contactarte.</p>
-            </div>
-
-            <button onClick={handleSubmit} disabled={loading}
-              style={{
-                width: '100%', marginTop: 20, padding: '18px',
-                background: loading ? '#555' : '#FCD116', color: '#000',
-                fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.2rem',
-                letterSpacing: '0.15em', border: 'none', cursor: loading ? 'not-allowed' : 'pointer'
-              }}>
-              {loading ? 'PROCESANDO...' : 'CONFIRMAR PEDIDO →'}
-            </button>
+        </div>
+      )}
+ 
+      <div className="max-w-7xl mx-auto px-4 py-10">
+ 
+        {/* Buscador y filtros */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 36 }}>
+          <input
+            type="text" placeholder="🔍  Buscar camiseta..."
+            value={busqueda} onChange={e => setBusqueda(e.target.value)}
+            style={{
+              background: '#111', border: '1px solid #222', color: '#fff',
+              padding: '12px 18px', fontSize: '0.9rem', outline: 'none',
+              width: '100%', maxWidth: 420
+            }}
+          />
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {CATEGORIAS.map(c => (
+              <button key={c} onClick={() => setCategoria(c)}
+                style={{
+                  padding: '8px 20px',
+                  background: categoria === c ? '#FCD116' : 'transparent',
+                  color: categoria === c ? '#000' : '#777',
+                  border: `1px solid ${categoria === c ? '#FCD116' : '#2a2a2a'}`,
+                  fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.9rem',
+                  letterSpacing: '0.1em', cursor: 'pointer', transition: 'all 0.2s'
+                }}>
+                {c}
+              </button>
+            ))}
           </div>
+        </div>
+ 
+        {/* Grid */}
+        {loading ? (
+          <div style={{ textAlign: 'center', paddingTop: 80 }}>
+            <div style={{
+              display: 'inline-block', width: 42, height: 42,
+              border: '3px solid #FCD11622', borderTopColor: '#FCD116',
+              borderRadius: '50%', animation: 'spin 1s linear infinite'
+            }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            <p style={{ color: '#555', marginTop: 14, fontSize: '0.9rem' }}>Cargando productos...</p>
+          </div>
+        ) : filtrados.length === 0 ? (
+          <div style={{ textAlign: 'center', paddingTop: 80 }}>
+            <p style={{ fontSize: '3rem', marginBottom: 12 }}>😕</p>
+            <p style={{ color: '#555' }}>No hay productos que coincidan con tu búsqueda</p>
+          </div>
+        ) : (
+          <>
+            <p style={{ color: '#444', fontSize: '0.8rem', marginBottom: 20 }}>
+              {filtrados.length} producto{filtrados.length !== 1 ? 's' : ''} encontrado{filtrados.length !== 1 ? 's' : ''}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filtrados.map(p => <ProductCard key={p.id} product={p} />)}
+            </div>
+          </>
+        )}
+ 
+        {/* Banner WhatsApp inferior */}
+        <div style={{ marginTop: 64, background: '#0c0c0c', border: '1px solid #1a1a1a', padding: '32px 28px', display: 'flex', flexWrap: 'wrap', gap: 20, alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <p style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#fff', fontSize: '1.4rem', letterSpacing: '0.05em', marginBottom: 4 }}>
+              ¿No encuentras lo que buscas?
+            </p>
+            <p style={{ color: '#555', fontSize: '0.85rem' }}>Escríbenos al WhatsApp y te ayudamos con disponibilidad y tallas</p>
+          </div>
+          <a href="https://wa.me/573174721539?text=Hola!%20Estoy%20buscando%20una%20camiseta%20y%20quisiera%20más%20info%20🇨🇴" target="_blank"
+            style={{
+              background: '#25D366', color: '#fff',
+              fontFamily: 'Bebas Neue, sans-serif', fontSize: '1rem',
+              letterSpacing: '0.12em', padding: '14px 32px',
+              border: 'none', cursor: 'pointer', textDecoration: 'none',
+              display: 'inline-block', whiteSpace: 'nowrap'
+            }}>
+            💬 ESCRIBIR AHORA
+          </a>
         </div>
       </div>
     </div>
