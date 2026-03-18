@@ -4,14 +4,22 @@ import { createContext, useContext, useState, useEffect } from 'react';
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
-  const [cart, setCart] = useState([]);
+  //Inicialización lazy: lee localStorage una sola vez al montar
+  const [cart, setCart] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('cart-colombia');
+        return saved ? JSON.parse(saved) : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    const savedCart = localStorage.getItem('cart-colombia');
-    if (savedCart) setCart(JSON.parse(savedCart));
-  }, []);
-
+  // Guarda en localStorage cada vez que cambia el carrito
   useEffect(() => {
     localStorage.setItem('cart-colombia', JSON.stringify(cart));
   }, [cart]);
@@ -53,7 +61,10 @@ export function CartProvider({ children }) {
   const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, total, itemCount, isOpen, setIsOpen }}>
+    <CartContext.Provider value={{
+      cart, addToCart, removeFromCart, updateQuantity,
+      clearCart, total, itemCount, isOpen, setIsOpen
+    }}>
       {children}
     </CartContext.Provider>
   );
