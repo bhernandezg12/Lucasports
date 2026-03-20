@@ -19,18 +19,18 @@ export default function Navbar() {
   <Image
     src="/logo.png"
     alt="Logo Luca'Sports"
-    width={44}
-    height={44}
+    width={64}
+    height={64}
     style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
   />
   <div>
     <p style={{
       fontFamily: 'Bebas Neue, sans-serif', color: '#FCD116',
-      fontSize: '1.5rem', lineHeight: 1, letterSpacing: '0.05em'
+      fontSize: '2.5rem', lineHeight: 1, letterSpacing: '0.05em'
     }}>
       LUCASPORTS
     </p>
-    <p style={{ fontSize: '0.55rem', color: '#ffffff88', letterSpacing: '0.25em', textTransform: 'uppercase' }}>
+    <p style={{ fontSize: '0.55rem', color: '#ffffff', letterSpacing: '0.35em', textTransform: 'uppercase' }}>
       Manizales · Colombia 🇨🇴
     </p>
   </div>
