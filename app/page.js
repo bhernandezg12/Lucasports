@@ -23,7 +23,7 @@ export default async function HomePage() {
       {/* ═══════════════════════ HERO ═══════════════════════ */}
       <section style={{
         background: 'linear-gradient(135deg, #003893 0%, #001f5c 45%, #0A0A0A 100%)',
-        minHeight: '92vh', display: 'flex', alignItems: 'center',
+        minHeight: '75vh', display: 'flex', alignItems: 'center',
         position: 'relative', overflow: 'hidden'
       }}>
         {/* Círculos decorativos de fondo */}
