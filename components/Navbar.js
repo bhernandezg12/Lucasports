@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import { useState } from 'react';
 import Link from 'next/link';
 import { ShoppingCart, Menu, X } from 'lucide-react';
@@ -14,28 +15,26 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
  
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3">
-          {/* Logo circular tipo sello */}
-          <div style={{
-            width: 44, height: 44, borderRadius: '50%',
-            border: '2px solid #FCD116',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(252,209,22,0.08)', flexShrink: 0
-          }}>
-            <span style={{ fontSize: '1.3rem' }}>⚽</span>
-          </div>
-          <div>
-            <p style={{
-              fontFamily: 'Bebas Neue, sans-serif', color: '#FCD116',
-              fontSize: '1.5rem', lineHeight: 1, letterSpacing: '0.05em'
-            }}>
-              LUCASPORTS
-            </p>
-            <p style={{ fontSize: '0.55rem', color: '#ffffff88', letterSpacing: '0.25em', textTransform: 'uppercase' }}>
-              Manizales · Colombia 🇨🇴
-            </p>
-          </div>
-        </Link>
+<Link href="/" className="flex items-center gap-3">
+  <Image
+    src="/logo.png"
+    alt="Logo Luca'Sports"
+    width={44}
+    height={44}
+    style={{ borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+  />
+  <div>
+    <p style={{
+      fontFamily: 'Bebas Neue, sans-serif', color: '#FCD116',
+      fontSize: '1.5rem', lineHeight: 1, letterSpacing: '0.05em'
+    }}>
+      LUCASPORTS
+    </p>
+    <p style={{ fontSize: '0.55rem', color: '#ffffff88', letterSpacing: '0.25em', textTransform: 'uppercase' }}>
+      Manizales · Colombia 🇨🇴
+    </p>
+  </div>
+</Link>
  
         {/* Links escritorio */}
         <div className="hidden md:flex items-center gap-8">
