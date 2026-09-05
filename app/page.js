@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { collection, getDocs, limit, query } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import ProductCard from '@/components/ProductCard';
+import HeroCarousel from '@/components/HeroCarousel';
 
 async function getProductos() {
   try {
@@ -21,11 +22,8 @@ export default async function HomePage() {
     <div style={{ paddingTop: 64 }}>
 
       {/* ═══════════════════════ HERO ═══════════════════════ */}
-      <section style={{
-        background: 'linear-gradient(135deg, #003893 0%, #001f5c 45%, #0A0A0A 100%)',
-        minHeight: '75vh', display: 'flex', alignItems: 'center',
-        position: 'relative', overflow: 'hidden'
-      }}>
+      <section style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(135deg, #06131f 0%, #0d1d2e 100%)', minHeight: 660 }}>
+        <HeroCarousel />
         {/* Círculos decorativos de fondo */}
         <div style={{ position: 'absolute', right: '-8%', top: '50%', transform: 'translateY(-50%)', width: '55%', height: '130%', borderRadius: '50%', border: '1px solid rgba(252,209,22,0.07)', background: 'rgba(252,209,22,0.025)' }} />
         <div style={{ position: 'absolute', right: '4%', top: '50%', transform: 'translateY(-50%)', width: '38%', height: '110%', borderRadius: '50%', border: '1px solid rgba(252,209,22,0.05)', background: 'rgba(206,17,38,0.02)' }} />

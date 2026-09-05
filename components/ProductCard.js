@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { ShoppingCart, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import Link from 'next/link';
 
 const TALLAS_DEFAULT = ['S', 'M', 'L', 'XL', 'XXL'];
 const WA_NUMBER = '573174721539';
@@ -21,10 +22,12 @@ export default function ProductCard({ product }) {
       : [];
 
   const fotoAnterior = (e) => {
+    e.preventDefault();
     e.stopPropagation();
     setFotoActual(prev => (prev === 0 ? fotos.length - 1 : prev - 1));
   };
   const fotoSiguiente = (e) => {
+    e.preventDefault();
     e.stopPropagation();
     setFotoActual(prev => (prev === fotos.length - 1 ? 0 : prev + 1));
   };
@@ -48,62 +51,64 @@ export default function ProductCard({ product }) {
   return (
     <div className="card-producto group" style={{ display: 'flex', flexDirection: 'column' }}>
 
-      {/* ── Galería de imágenes ── */}
-      <div style={{ background: '#1a1a1a', height: 300, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      {/* ── Galería de imágenes con Enlace al Detalle ── */}
+      <Link href={`/productos/${product.id}`} style={{ textDecoration: 'none', display: 'block' }}>
+        <div style={{ background: '#1a1a1a', height: 300, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 
-        {fotos.length > 0 ? (
-          <>
-            <img
-              src={fotos[fotoActual]}
-              alt={product.nombre}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.3s ease' }}
-            />
+          {fotos.length > 0 ? (
+            <>
+              <img
+                src={fotos[fotoActual]}
+                alt={product.nombre}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.3s ease' }}
+              />
 
-            {/* Flechas de navegación — solo si hay más de 1 foto */}
-            {fotos.length > 1 && (
-              <>
-                <button onClick={fotoAnterior}
-                  style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
-                  <ChevronLeft size={18} color="#fff" />
-                </button>
-                <button onClick={fotoSiguiente}
-                  style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
-                  <ChevronRight size={18} color="#fff" />
-                </button>
+              {/* Flechas de navegación — solo si hay más de 1 foto */}
+              {fotos.length > 1 && (
+                <>
+                  <button onClick={fotoAnterior}
+                    style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
+                    <ChevronLeft size={18} color="#fff" />
+                  </button>
+                  <button onClick={fotoSiguiente}
+                    style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
+                    <ChevronRight size={18} color="#fff" />
+                  </button>
 
-                {/* Indicadores de puntos */}
-                <div style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 5, zIndex: 2 }}>
-                  {fotos.map((_, i) => (
-                    <button key={i} onClick={(e) => { e.stopPropagation(); setFotoActual(i); }}
-                      style={{ width: i === fotoActual ? 18 : 7, height: 7, borderRadius: i === fotoActual ? 4 : '50%', background: i === fotoActual ? '#FCD116' : 'rgba(255,255,255,0.4)', border: 'none', cursor: 'pointer', transition: 'all 0.2s', padding: 0 }} />
-                  ))}
-                </div>
+                  {/* Indicadores de puntos */}
+                  <div style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 5, zIndex: 2 }}>
+                    {fotos.map((_, i) => (
+                      <button key={i} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setFotoActual(i); }}
+                        style={{ width: i === fotoActual ? 18 : 7, height: 7, borderRadius: i === fotoActual ? 4 : '50%', background: i === fotoActual ? '#FCD116' : 'rgba(255,255,255,0.4)', border: 'none', cursor: 'pointer', transition: 'all 0.2s', padding: 0 }} />
+                    ))}
+                  </div>
 
-                {/* Contador de fotos */}
-                <span style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: '0.7rem', padding: '3px 8px', borderRadius: 10, zIndex: 2 }}>
-                  {fotoActual + 1}/{fotos.length}
-                </span>
-              </>
-            )}
-          </>
-        ) : (
-          <div style={{ textAlign: 'center' }}>
-            <span style={{ fontSize: '5rem' }}>👕</span>
-          </div>
-        )}
+                  {/* Contador de fotos */}
+                  <span style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: '0.7rem', padding: '3px 8px', borderRadius: 10, zIndex: 2 }}>
+                    {fotoActual + 1}/{fotos.length}
+                  </span>
+                </>
+              )}
+            </>
+          ) : (
+            <div style={{ textAlign: 'center' }}>
+              <span style={{ fontSize: '5rem' }}>👕</span>
+            </div>
+          )}
 
-        {/* Badges */}
-        {product.categoria && (
-          <span style={{ position: 'absolute', top: 12, left: 12, background: '#003893', color: '#FCD116', fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.7rem', letterSpacing: '0.15em', padding: '3px 10px', zIndex: 2 }}>
-            {product.categoria}
-          </span>
-        )}
-        {product.especial && (
-          <span style={{ position: 'absolute', top: fotos.length > 1 ? 38 : 12, left: 12, background: '#CE1126', color: '#fff', fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.7rem', letterSpacing: '0.1em', padding: '3px 10px', zIndex: 2 }}>
-            {product.especial}
-          </span>
-        )}
-      </div>
+          {/* Badges */}
+          {product.categoria && (
+            <span style={{ position: 'absolute', top: 12, left: 12, background: '#003893', color: '#FCD116', fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.7rem', letterSpacing: '0.15em', padding: '3px 10px', zIndex: 2 }}>
+              {product.categoria}
+            </span>
+          )}
+          {product.especial && (
+            <span style={{ position: 'absolute', top: fotos.length > 1 ? 38 : 12, left: 12, background: '#CE1126', color: '#fff', fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.7rem', letterSpacing: '0.1em', padding: '3px 10px', zIndex: 2 }}>
+              {product.especial}
+            </span>
+          )}
+        </div>
+      </Link>
 
       {/* Miniaturas de fotos (si hay más de 1) */}
       {fotos.length > 1 && (
@@ -119,9 +124,13 @@ export default function ProductCard({ product }) {
 
       {/* ── Info ── */}
       <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <h3 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.2rem', color: '#fff', letterSpacing: '0.04em', lineHeight: 1.15 }}>
-          {product.nombre}
-        </h3>
+        
+        {/* Nombre del Producto con Enlace */}
+        <Link href={`/productos/${product.id}`} style={{ textDecoration: 'none' }}>
+          <h3 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.2rem', color: '#fff', letterSpacing: '0.04em', lineHeight: 1.15 }}>
+            {product.nombre}
+          </h3>
+        </Link>
 
         {product.descripcion && (
           <p style={{ color: '#777', fontSize: '0.8rem', lineHeight: 1.5, flex: 1 }}>{product.descripcion}</p>

@@ -32,11 +32,16 @@
   transition: background-color 0.3s, color 0.3s;
 }
 
-@utility card-producto {
-  background-color: #18181b;
-  border: 1px solid #27272a;
+@utility .card-producto {
+  background-color: #FFFFFF;          /* blanco */
+  border: 1px solid #E5E7EB;
   overflow: hidden;
-  transition: border-color 0.3s, transform 0.3s;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+.card-producto:hover {
+  border-color: #FCD116;
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0,56,147,0.12);
 }
 
 @utility animate-fade-up {
@@ -49,18 +54,21 @@
 
 /* Variables CSS */
 :root {
-  --amarillo: #FCD116;
-  --azul:     #003893;
-  --rojo:     #CE1126;
+  --amarillo:     #FCD116;
+  --azul:         #003893;
+  --rojo:         #CE1126;
+  --fondo:        #F8F9FA;      /* ← antes era #0A0A0A, ahora gris muy claro */
+  --fondo-card:   #FFFFFF;      /* blanco puro para las tarjetas */
+  --texto:        #111827;      /* casi negro pero suave */
+  --texto-suave:  #6B7280;      /* gris para subtítulos */
+  --borde:        #E5E7EB;      /* borde muy sutil */
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Barlow', sans-serif;
-  background-color: #0A0A0A;
-  color: #FFFFFF;
-  overflow-x: hidden;
+  background-color: var(--fondo);   /* ← cambia de negro a gris claro */
+  color: var(--texto);
 }
 
 /* Hover states */
