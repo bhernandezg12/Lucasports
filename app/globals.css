@@ -32,16 +32,18 @@
   transition: background-color 0.3s, color 0.3s;
 }
 
-@utility .card-producto {
-  background-color: #FFFFFF;          /* blanco */
+/* ✅ Regla CSS estándar para .card-producto (resuelve también el error de Vercel) */
+.card-producto {
+  background-color: #FFFFFF;        /* blanco */
   border: 1px solid #E5E7EB;
   overflow: hidden;
   transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
 }
+
 .card-producto:hover {
   border-color: #FCD116;
   transform: translateY(-5px);
-  box-shadow: 0 12px 40px rgba(0,56,147,0.12);
+  box-shadow: 0 12px 40px rgba(0, 56, 147, 0.12);
 }
 
 @utility animate-fade-up {
@@ -74,7 +76,6 @@ body {
 /* Hover states */
 .btn-primary:hover   { background-color: #ffffff; color: #000; }
 .btn-secondary:hover { background-color: #FCD116; color: #000; }
-.card-producto:hover { border-color: #FCD116; transform: translateY(-6px); }
 
 /* Animaciones */
 @keyframes fadeInUp {
