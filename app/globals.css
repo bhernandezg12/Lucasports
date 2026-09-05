@@ -32,9 +32,8 @@
   transition: background-color 0.3s, color 0.3s;
 }
 
-/* ✅ Regla CSS estándar para .card-producto (resuelve también el error de Vercel) */
 .card-producto {
-  background-color: #FFFFFF;        /* blanco */
+  background-color: #FFFFFF;
   border: 1px solid #E5E7EB;
   overflow: hidden;
   transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
