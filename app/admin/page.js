@@ -6,7 +6,7 @@ import { db, storage } from '@/lib/firebase';
 import { Trash2, Plus, Package, X, Image as ImageIcon } from 'lucide-react';
 
 const TALLAS_DISPONIBLES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-const CATEGORIAS = ['Oficial', 'Entrenamiento', 'Edición Especial'];
+const CATEGORIAS = ['Premier League', 'LaLiga', 'Serie A', 'Bundesliga', 'Ligue 1', 'MLS', 'Selecciones', 'Retro', 'Entrenamiento'];
 const PASSWORD_ADMIN = 'lucasports2026';
 const MAX_IMAGENES = 5;
 
@@ -14,7 +14,7 @@ const FORM_INICIAL = {
   nombre: '',
   precio: '',
   descripcion: '',
-  categoria: 'Oficial',
+  categoria: 'Premier League',
   especial: '',
   tallas: ['S', 'M', 'L', 'XL'],
 };

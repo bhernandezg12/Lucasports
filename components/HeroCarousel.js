@@ -1,187 +1,298 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-// ← Edita estos slides directamente aquí
-// Cuando tengas las fotos de tus camisetas, cambia imageUrl
-const SLIDES = [
+/**
+ * HeroCarousel — Estilo Figma "NEW COLLECTION"
+ *
+ * Recibe hasta 3 productos desde el server y arma slides automáticos.
+ * Si no hay productos, muestra slides estáticos con placeholders.
+ * ¡El título del producto SÍ aparece porque lo tomamos de `p.nombre`!
+ */
+
+const SLIDES_FALLBACK = [
   {
-    id: 1,
-    badge: '🇨🇴 MUNDIAL 2026',
-    titulo: 'Camiseta Oficial\nLocal Colombia 2026',
-    subtitulo: 'La camiseta de la Tricolor para el sueño mundialista',
-    precio: 89000,
-    cta: 'Ver producto',
+    id: 'fb-1',
+    tag: 'Nuevo · Temporada 26/27',
+    titulo: 'Las Grandes Ligas Están de Vuelta',
+    subtitulo: 'Camisetas oficiales de tus clubes favoritos. Premier League, LaLiga, Serie A, Bundesliga y más.',
+    cta: 'Explorar tienda',
     href: '/productos',
-    bg: 'linear-gradient(135deg, #003893 0%, #001f5c 60%, #0A0A0A 100%)',
-    acento: '#FCD116',
-    imageEmoji: '👕',
-    imageUrl: '',   // ← cuando tengas la foto, ponla aquí
+    imageUrl: '',
+    liga: 'TEMPORADA 26/27',
   },
   {
-    id: 2,
-    badge: '⚽ ENTRENAMIENTO',
-    titulo: 'Camiseta Oficial\nEntrenamiento Blanca',
-    subtitulo: 'La misma calidad que usa la Selección en cada práctica',
-    precio: 75000,
-    cta: 'Ver producto',
-    href: '/productos',
-    bg: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%)',
-    acento: '#FFFFFF',
-    imageEmoji: '👕',
+    id: 'fb-2',
+    tag: 'Selecciones',
+    titulo: 'Viste los Colores de tu País',
+    subtitulo: 'Las camisetas de las selecciones más grandes rumbo al Mundial 2026.',
+    cta: 'Ver selecciones',
+    href: '/productos?cat=Selecciones',
     imageUrl: '',
+    liga: 'INTERNACIONAL',
   },
   {
-    id: 3,
-    badge: '🏆 EDICIÓN LIMITADA',
-    titulo: 'Camiseta\nConmemorativa 100 Años',
-    subtitulo: 'Un siglo de historia y pasión. Edición de coleccionista.',
-    precio: 99000,
-    cta: 'Ver producto',
-    href: '/productos',
-    bg: 'linear-gradient(135deg, #6B2D4A 0%, #A85F72 60%, #C4798A 100%)',
-    acento: '#FCD116',
-    imageEmoji: '🏆',
+    id: 'fb-3',
+    tag: 'Retro · Coleccionista',
+    titulo: 'Camisetas Clásicas que Marcaron Época',
+    subtitulo: 'Rediseños vintage de los partidos que nunca olvidarás.',
+    cta: 'Ver retro',
+    href: '/productos?cat=Retro',
     imageUrl: '',
+    liga: 'COLECCIÓN RETRO',
   },
 ];
 
-export default function HeroCarousel() {
-  const [actual, setActual] = useState(0);
-  const [animando, setAnimando] = useState(false);
+export default function HeroCarousel({ productos = [] }) {
+  const slides = productos.length > 0
+    ? productos.slice(0, 3).map(p => ({
+        id: p.id,
+        tag: p.liga || p.categoria || 'Nuevo · 26/27',
+        titulo: p.nombre,                    // ← ¡el fix! ahora sí aparece el nombre real
+        subtitulo: p.descripcion?.slice(0, 130) || 'Camiseta oficial de la temporada 26/27.',
+        cta: 'Ver producto',
+        href: `/productos/${p.id}`,
+        imageUrl: p.imageUrls?.[0] || p.imageUrl || '',
+        liga: (p.liga || p.categoria || 'TEMPORADA 26/27').toUpperCase(),
+        precio: p.precio,
+      }))
+    : SLIDES_FALLBACK;
 
-  const cambiarSlide = (nuevo) => {
-    if (animando) return;
-    setAnimando(true);
+  const [actual, setActual] = useState(0);
+  const [fade, setFade] = useState(false);
+
+  const cambiar = (i) => {
+    setFade(true);
     setTimeout(() => {
-      setActual(nuevo);
-      setAnimando(false);
-    }, 300);
+      setActual(((i % slides.length) + slides.length) % slides.length);
+      setFade(false);
+    }, 220);
   };
 
-  // Auto-avance cada 5 segundos
   useEffect(() => {
-    const timer = setInterval(() => {
-      cambiarSlide((actual + 1) % SLIDES.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [actual, animando]);
+    const t = setInterval(() => cambiar(actual + 1), 6500);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [actual]);
 
-  const slide = SLIDES[actual];
+  const s = slides[actual];
 
   return (
     <section style={{
-      background: slide.bg,
-      minHeight: '92vh',
-      display: 'flex', alignItems: 'center',
-      position: 'relative', overflow: 'hidden',
-      transition: 'background 0.8s ease',
+      background: 'var(--bg)',
+      paddingTop: 90,
+      paddingBottom: 32,
+      position: 'relative',
+      overflow: 'hidden',
     }}>
-      {/* Decorativos de fondo */}
-      <div style={{ position: 'absolute', right: '-8%', top: '50%', transform: 'translateY(-50%)', width: '55%', height: '130%', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }} />
+      <div className="container-wide">
 
-      {/* Contenido */}
-      <div className="max-w-7xl mx-auto px-4 w-full"
-        style={{ opacity: animando ? 0 : 1, transition: 'opacity 0.3s ease', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 32 }}>
+        {/* Grid del hero: texto izquierda, imagen derecha */}
+        <div
+          className="grid grid-cols-1 lg:grid-cols-2"
+          style={{
+            gap: 48,
+            alignItems: 'center',
+            minHeight: 'min(78vh, 720px)',
+            opacity: fade ? 0 : 1,
+            transition: 'opacity 0.22s ease',
+          }}
+        >
+          {/* Columna texto */}
+          <div style={{ maxWidth: 620 }}>
+            <div className="chip chip-light" style={{ marginBottom: 20 }}>
+              <span style={{
+                width: 6, height: 6, borderRadius: '50%',
+                background: 'var(--season)',
+                animation: 'pulse 1.6s ease-in-out infinite',
+              }} />
+              {s.tag}
+            </div>
 
-        {/* Texto */}
-        <div style={{ maxWidth: 580, flex: 1 }}>
-          <span style={{
-            background: slide.acento, color: '#000',
-            fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.8rem',
-            letterSpacing: '0.25em', padding: '5px 16px',
-            display: 'inline-block', marginBottom: 20,
-          }}>
-            {slide.badge}
-          </span>
+            <h1 style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 800,
+              fontSize: 'clamp(2.6rem, 6.4vw, 5.2rem)',
+              lineHeight: 0.98,
+              color: 'var(--ink)',
+              letterSpacing: '-0.03em',
+              marginBottom: 24,
+            }}
+            className="text-balance"
+            >
+              {s.titulo}
+            </h1>
 
-          <h1 style={{
-            fontFamily: 'Bebas Neue, sans-serif',
-            fontSize: 'clamp(3rem, 8vw, 6rem)',
-            color: '#fff', lineHeight: 0.92,
-            whiteSpace: 'pre-line', marginBottom: 20,
-          }}>
-            {slide.titulo}
-          </h1>
-
-          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1rem', lineHeight: 1.7, marginBottom: 28 }}>
-            {slide.subtitulo}
-          </p>
-
-          {slide.precio > 0 && (
             <p style={{
-              fontFamily: 'Bebas Neue, sans-serif',
-              fontSize: '2.5rem', color: slide.acento,
-              marginBottom: 28, lineHeight: 1,
+              fontSize: '1.05rem',
+              lineHeight: 1.6,
+              color: 'var(--muted)',
+              marginBottom: 32,
+              maxWidth: 520,
             }}>
-              ${slide.precio.toLocaleString('es-CO')}
-              <span style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.5)', marginLeft: 8, fontFamily: 'Barlow, sans-serif' }}>COP</span>
+              {s.subtitulo}
             </p>
-          )}
 
-          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-            <Link href={slide.href} style={{ textDecoration: 'none' }}>
-              <button style={{
-                background: slide.acento, color: slide.acento === '#FFFFFF' ? '#003893' : '#000',
-                fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.05rem',
-                letterSpacing: '0.15em', padding: '15px 36px',
-                border: 'none', cursor: 'pointer',
+            {s.precio > 0 && (
+              <p style={{
+                fontFamily: 'var(--font-display)',
+                fontWeight: 700,
+                fontSize: '1.6rem',
+                color: 'var(--ink)',
+                marginBottom: 28,
               }}>
-                {slide.cta} →
-              </button>
-            </Link>
-            <a href="https://wa.me/573174721539" target="_blank" style={{ textDecoration: 'none' }}>
-              <button style={{
-                background: '#25D366', color: '#fff',
-                fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.05rem',
-                letterSpacing: '0.12em', padding: '15px 32px',
-                border: 'none', cursor: 'pointer',
-              }}>
-                💬 WhatsApp
-              </button>
-            </a>
+                ${s.precio.toLocaleString('es-CO')}
+                <span style={{ fontSize: '0.85rem', color: 'var(--muted)', marginLeft: 8, fontWeight: 400 }}>
+                  COP
+                </span>
+              </p>
+            )}
+
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+              <Link href={s.href} style={{ textDecoration: 'none' }}>
+                <button className="btn-primary">
+                  {s.cta} →
+                </button>
+              </Link>
+              <a
+                href="https://wa.me/573174721539?text=Hola%20Lucasports!%20Quiero%20info%20de%20la%20temporada%2026%2F27"
+                target="_blank"
+                rel="noreferrer"
+                style={{ textDecoration: 'none' }}
+              >
+                <button className="btn-outline">
+                  💬 Consultar por WhatsApp
+                </button>
+              </a>
+            </div>
+
+            {/* Trust bar */}
+            <div style={{
+              display: 'flex', gap: 24, flexWrap: 'wrap',
+              marginTop: 40, paddingTop: 24,
+              borderTop: '1px solid var(--line)',
+            }}>
+              {[
+                { icon: '💵', text: 'Pago contra entrega' },
+                { icon: '📦', text: 'Envíos a toda Colombia' },
+                { icon: '⭐', text: 'Productos oficiales' },
+              ].map(g => (
+                <div key={g.text} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: '1rem' }}>{g.icon}</span>
+                  <span style={{ color: 'var(--muted)', fontSize: '0.82rem', fontWeight: 500 }}>{g.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Columna imagen */}
+          <div style={{
+            position: 'relative',
+            aspectRatio: '4/5',
+            maxHeight: 640,
+            borderRadius: 20,
+            overflow: 'hidden',
+            background: 'var(--surface)',
+            border: '1px solid var(--line)',
+          }}
+            className="placeholder-jersey"
+          >
+            {s.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={s.imageUrl}
+                alt={s.titulo}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              <div style={{ textAlign: 'center', padding: 24 }}>
+                <div style={{ fontSize: '7rem', opacity: 0.25 }}>👕</div>
+                <p style={{ marginTop: 12, fontSize: '0.85rem', color: 'var(--muted-2)', fontWeight: 500 }}>
+                  Imagen próximamente
+                </p>
+              </div>
+            )}
+
+            {/* Badge de liga sobre la imagen */}
+            <div style={{
+              position: 'absolute', top: 20, left: 20,
+              background: 'rgba(11,11,11,0.85)', color: '#fff',
+              padding: '8px 14px', borderRadius: 999,
+              fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.05em',
+              backdropFilter: 'blur(8px)',
+            }}>
+              {s.liga}
+            </div>
+
+            {/* Contador */}
+            <div style={{
+              position: 'absolute', bottom: 20, right: 20,
+              background: 'rgba(255,255,255,0.9)', color: 'var(--ink)',
+              padding: '6px 14px', borderRadius: 999,
+              fontSize: '0.75rem', fontWeight: 600,
+              backdropFilter: 'blur(8px)',
+            }}>
+              {String(actual + 1).padStart(2, '0')} / {String(slides.length).padStart(2, '0')}
+            </div>
           </div>
         </div>
 
-        {/* Imagen del producto */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: 400 }}
-          className="hidden md:flex">
-          {slide.imageUrl ? (
-            <img src={slide.imageUrl} alt={slide.titulo}
-              style={{ width: '100%', maxWidth: 380, objectFit: 'contain', filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.4))' }} />
-          ) : (
-            <div style={{ fontSize: '14rem', opacity: 0.15, userSelect: 'none' }}>{slide.imageEmoji}</div>
-          )}
-        </div>
-      </div>
-
-      {/* Navegación puntos */}
-      <div style={{ position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 10 }}>
-        {SLIDES.map((_, i) => (
-          <button key={i} onClick={() => cambiarSlide(i)}
-            style={{
-              width: i === actual ? 28 : 8, height: 8,
-              borderRadius: 4,
-              background: i === actual ? slide.acento : 'rgba(255,255,255,0.3)',
-              border: 'none', cursor: 'pointer',
-              transition: 'all 0.3s ease', padding: 0,
-            }} />
-        ))}
-      </div>
-
-      {/* Flechas */}
-      <button onClick={() => cambiarSlide((actual - 1 + SLIDES.length) % SLIDES.length)}
-        style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', width: 44, height: 44, fontSize: '1.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        ‹
-      </button>
-      <button onClick={() => cambiarSlide((actual + 1) % SLIDES.length)}
-        style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', width: 44, height: 44, fontSize: '1.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        ›
-      </button>
-
-      {/* Contador */}
-      <div style={{ position: 'absolute', top: 24, right: 24, fontFamily: 'Bebas Neue, sans-serif', color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem', letterSpacing: '0.1em' }}>
-        {String(actual + 1).padStart(2, '0')} / {String(SLIDES.length).padStart(2, '0')}
+        {/* Controles del carrusel */}
+        {slides.length > 1 && (
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            marginTop: 24, paddingTop: 20,
+            borderTop: '1px solid var(--line)',
+          }}>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {slides.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => cambiar(i)}
+                  aria-label={`Slide ${i + 1}`}
+                  style={{
+                    width: i === actual ? 28 : 8, height: 8,
+                    borderRadius: 999,
+                    background: i === actual ? 'var(--ink)' : 'var(--line-strong)',
+                    border: 'none', cursor: 'pointer',
+                    transition: 'all 0.3s ease', padding: 0,
+                  }}
+                />
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => cambiar(actual - 1)}
+                aria-label="Anterior"
+                style={{
+                  width: 40, height: 40, borderRadius: '50%',
+                  background: 'var(--surface)', border: '1px solid var(--line)',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'var(--ink)', transition: 'all 0.2s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--ink)'; e.currentTarget.style.color = '#fff'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.color = 'var(--ink)'; }}
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <button
+                onClick={() => cambiar(actual + 1)}
+                aria-label="Siguiente"
+                style={{
+                  width: 40, height: 40, borderRadius: '50%',
+                  background: 'var(--surface)', border: '1px solid var(--line)',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'var(--ink)', transition: 'all 0.2s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'var(--ink)'; e.currentTarget.style.color = '#fff'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.color = 'var(--ink)'; }}
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

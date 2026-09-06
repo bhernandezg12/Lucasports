@@ -1,5 +1,5 @@
 'use client';
-import { X, Trash2, Plus, Minus, MessageCircle } from 'lucide-react';
+import { X, Trash2, Plus, Minus, MessageCircle, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 
 const WA_NUMBER = '573174721539';
@@ -7,107 +7,145 @@ const WA_NUMBER = '573174721539';
 export default function CartDrawer() {
   const { cart, isOpen, setIsOpen, removeFromCart, updateQuantity, total } = useCart();
 
-  // Genera el mensaje de WhatsApp con el resumen del pedido
   const handleWhatsApp = () => {
     if (cart.length === 0) return;
-
     const lineas = cart.map(item =>
       `• ${item.nombre} | Talla: ${item.size} | Cant: ${item.quantity} | $${(item.precio * item.quantity).toLocaleString('es-CO')}`
     ).join('\n');
-
-    const mensaje = `¡Hola! Quiero hacer un pedido en Luca'Sports 🇨🇴\n\n*RESUMEN DEL PEDIDO:*\n${lineas}\n\n*TOTAL: $${total.toLocaleString('es-CO')} COP*\n\n_Pago contra entrega. El envío lo asumo yo._\n\n¿Me pueden confirmar disponibilidad y datos de envío? 🙏`;
-
-    const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(mensaje)}`;
-    window.open(url, '_blank');
+    const mensaje = `¡Hola Lucasports! Quiero hacer un pedido:\n\n${lineas}\n\nTOTAL: $${total.toLocaleString('es-CO')} COP\n\nPago contra entrega. ¿Me confirman disponibilidad y envío? 🙏`;
+    window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(mensaje)}`, '_blank');
   };
 
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 z-50"
-          style={{ background: 'rgba(0,0,0,0.65)' }}
-          onClick={() => setIsOpen(false)} />
+        <div
+          className="fixed inset-0 z-50"
+          style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setIsOpen(false)}
+        />
       )}
 
       <div style={{
-        background: '#111',
-        borderLeft: '3px solid #FCD116',
+        background: 'var(--surface)',
+        borderLeft: '1px solid var(--line)',
         transition: 'transform 0.35s cubic-bezier(.4,0,.2,1)',
         transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
         position: 'fixed', right: 0, top: 0, height: '100%',
-        width: '100%', maxWidth: 380, zIndex: 51, display: 'flex', flexDirection: 'column'
+        width: '100%', maxWidth: 420, zIndex: 51,
+        display: 'flex', flexDirection: 'column',
       }}>
 
         {/* Header */}
-        <div style={{ borderBottom: '1px solid #FCD11622', padding: '18px 20px' }}
-          className="flex items-center justify-between">
+        <div style={{
+          borderBottom: '1px solid var(--line)',
+          padding: '20px 24px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
           <div>
-            <h2 style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#FCD116', fontSize: '1.8rem', letterSpacing: '0.05em' }}>
-              Tu Pedido
+            <h2 style={{
+              fontFamily: 'var(--font-display)', fontWeight: 700,
+              color: 'var(--ink)', fontSize: '1.15rem',
+              letterSpacing: '-0.01em',
+            }}>
+              Tu carrito
             </h2>
-            <p style={{ color: '#666', fontSize: '0.72rem', marginTop: 2 }}>
-              Se enviará por WhatsApp para confirmar
+            <p style={{ color: 'var(--muted)', fontSize: '0.78rem', marginTop: 2 }}>
+              {cart.length} artículo{cart.length !== 1 ? 's' : ''}
             </p>
           </div>
           <button onClick={() => setIsOpen(false)}
-            style={{ background: '#1a1a1a', border: '1px solid #333', padding: 6, cursor: 'pointer' }}>
-            <X color="#FCD116" size={20} />
+            aria-label="Cerrar"
+            style={{
+              width: 36, height: 36, borderRadius: '50%',
+              background: 'var(--surface-alt)', border: 'none',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--ink)',
+            }}>
+            <X size={18} />
           </button>
         </div>
 
         {/* Items */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
           {cart.length === 0 ? (
-            <div className="text-center" style={{ marginTop: 60 }}>
-              <p style={{ fontSize: '3.5rem', marginBottom: 12 }}>🛒</p>
-              <p style={{ color: '#555', fontSize: '0.9rem' }}>Tu carrito está vacío</p>
-              <button onClick={() => setIsOpen(false)}
-                style={{
-                  marginTop: 20, background: '#FCD116', color: '#000',
-                  fontFamily: 'Bebas Neue, sans-serif', fontSize: '1rem',
-                  letterSpacing: '0.1em', padding: '10px 28px', border: 'none', cursor: 'pointer'
-                }}>
-                VER PRODUCTOS
+            <div style={{ textAlign: 'center', paddingTop: 60 }}>
+              <ShoppingBag size={48} color="var(--muted-2)" style={{ margin: '0 auto 16px' }} />
+              <p style={{ color: 'var(--ink)', fontWeight: 600, marginBottom: 6 }}>
+                Tu carrito está vacío
+              </p>
+              <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginBottom: 20 }}>
+                Agrega productos para empezar
+              </p>
+              <button onClick={() => setIsOpen(false)} className="btn-primary">
+                Ver tienda
               </button>
             </div>
           ) : (
             cart.map((item, i) => (
               <div key={i} style={{
-                background: '#1a1a1a', border: '1px solid #2a2a2a',
-                padding: 14, display: 'flex', gap: 12, alignItems: 'center'
+                background: 'var(--surface-alt)', border: '1px solid var(--line)',
+                borderRadius: 12, padding: 12,
+                display: 'flex', gap: 12, alignItems: 'center',
               }}>
-                {/* Imagen / emoji */}
-                <div style={{
-                  width: 64, height: 64, background: '#222', flexShrink: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden'
+                <div className="placeholder-jersey" style={{
+                  width: 60, height: 72, borderRadius: 8, flexShrink: 0,
+                  overflow: 'hidden',
                 }}>
                   {item.imageUrl
-                    ? <img src={item.imageUrl} alt={item.nombre} style={{ width: 64, height: 64, objectFit: 'cover' }} />
-                    : <span style={{ fontSize: '2rem' }}>👕</span>
+                    // eslint-disable-next-line @next/next/no-img-element
+                    ? <img src={item.imageUrl} alt={item.nombre} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    : <span style={{ fontSize: '1.6rem', opacity: 0.3 }}>👕</span>
                   }
                 </div>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ color: '#fff', fontWeight: 600, fontSize: '0.85rem', lineHeight: 1.3, marginBottom: 2 }}>
+                  <p style={{
+                    color: 'var(--ink)', fontWeight: 600, fontSize: '0.85rem',
+                    lineHeight: 1.3, marginBottom: 2,
+                    display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                  }}>
                     {item.nombre}
                   </p>
-                  <p style={{ color: '#888', fontSize: '0.75rem', marginBottom: 6 }}>Talla: <strong style={{ color: '#FCD116' }}>{item.size}</strong></p>
+                  <p style={{ color: 'var(--muted)', fontSize: '0.75rem', marginBottom: 8 }}>
+                    Talla <strong style={{ color: 'var(--ink)' }}>{item.size}</strong>
+                  </p>
 
-                  <div className="flex items-center" style={{ gap: 8 }}>
-                    <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
-                      style={{ background: '#2a2a2a', border: '1px solid #333', color: '#fff', width: 24, height: 24, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Minus size={11} />
-                    </button>
-                    <span style={{ color: '#fff', fontSize: '0.9rem', minWidth: 18, textAlign: 'center' }}>{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
-                      style={{ background: '#2a2a2a', border: '1px solid #333', color: '#fff', width: 24, height: 24, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Plus size={11} />
-                    </button>
-                    <span style={{ color: '#FCD116', fontWeight: 'bold', fontSize: '0.9rem', marginLeft: 'auto' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                      background: 'var(--surface)', border: '1px solid var(--line)',
+                      borderRadius: 8, padding: 2,
+                    }}>
+                      <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                        aria-label="Menos"
+                        style={{
+                          width: 24, height: 24, background: 'transparent',
+                          border: 'none', cursor: 'pointer', color: 'var(--ink)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                        <Minus size={12} />
+                      </button>
+                      <span style={{ minWidth: 20, textAlign: 'center', fontSize: '0.85rem', fontWeight: 600, color: 'var(--ink)' }}>
+                        {item.quantity}
+                      </span>
+                      <button onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                        aria-label="Más"
+                        style={{
+                          width: 24, height: 24, background: 'transparent',
+                          border: 'none', cursor: 'pointer', color: 'var(--ink)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                        <Plus size={12} />
+                      </button>
+                    </div>
+                    <span style={{ color: 'var(--ink)', fontWeight: 700, fontSize: '0.9rem', marginLeft: 'auto' }}>
                       ${(item.precio * item.quantity).toLocaleString('es-CO')}
                     </span>
-                    <button onClick={() => removeFromCart(item.id, item.size)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}>
-                      <Trash2 size={15} color="#CE1126" />
+                    <button onClick={() => removeFromCart(item.id, item.size)}
+                      aria-label="Eliminar"
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+                      <Trash2 size={14} color="var(--muted)" />
                     </button>
                   </div>
                 </div>
@@ -116,39 +154,34 @@ export default function CartDrawer() {
           )}
         </div>
 
-        {/* Footer con botón WhatsApp */}
+        {/* Footer */}
         {cart.length > 0 && (
-          <div style={{ borderTop: '1px solid #FCD11622', padding: 20 }}>
-            {/* Aviso envío */}
-            <div style={{ background: '#0d1a0d', border: '1px solid #1e3a1e', padding: '10px 14px', marginBottom: 16 }}>
-              <p style={{ color: '#4CAF50', fontSize: '0.78rem', lineHeight: 1.5 }}>
-                ✅ <strong>Pago CONTRA ENTREGA</strong> — pagas al recibir<br />
-                📦 Envíos a toda Colombia · El costo de envío lo asumes tú
+          <div style={{ borderTop: '1px solid var(--line)', padding: '20px 24px' }}>
+            <div style={{
+              background: 'var(--surface-alt)',
+              borderRadius: 10, padding: '12px 14px', marginBottom: 16,
+            }}>
+              <p style={{ color: 'var(--ink)', fontSize: '0.8rem', lineHeight: 1.5 }}>
+                ✅ <strong>Pago contra entrega</strong> — pagas al recibir.<br />
+                📦 Envíos a toda Colombia (costo asumido por el cliente).
               </p>
             </div>
 
-            <div className="flex justify-between items-center" style={{ marginBottom: 16 }}>
-              <span style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#999', fontSize: '1rem', letterSpacing: '0.1em' }}>
-                SUBTOTAL
-              </span>
-              <span style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#FCD116', fontSize: '1.5rem' }}>
-                ${total.toLocaleString('es-CO')} COP
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <span style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Subtotal</span>
+              <span style={{
+                fontFamily: 'var(--font-display)', fontWeight: 800,
+                color: 'var(--ink)', fontSize: '1.4rem',
+              }}>
+                ${total.toLocaleString('es-CO')} <span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'var(--muted)' }}>COP</span>
               </span>
             </div>
 
-            <button onClick={handleWhatsApp}
-              style={{
-                width: '100%', padding: '15px',
-                background: '#25D366', color: '#fff',
-                fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.1rem',
-                letterSpacing: '0.1em', border: 'none', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                transition: 'background 0.2s'
-              }}>
-              <MessageCircle size={20} />
-              PEDIR POR WHATSAPP →
+            <button onClick={handleWhatsApp} className="btn-whatsapp" style={{ width: '100%', justifyContent: 'center', padding: '16px', fontSize: '0.95rem' }}>
+              <MessageCircle size={16} />
+              Pedir por WhatsApp
             </button>
-            <p style={{ color: '#555', fontSize: '0.7rem', textAlign: 'center', marginTop: 8 }}>
+            <p style={{ color: 'var(--muted)', fontSize: '0.72rem', textAlign: 'center', marginTop: 10 }}>
               Se abrirá WhatsApp con tu pedido listo para enviar
             </p>
           </div>
