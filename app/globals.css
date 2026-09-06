@@ -1,18 +1,48 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;900&family=Space+Grotesk:wght@500;700&family=Barlow:wght@400;500;600;700;900&display=swap');
 
-/* ✅ Tailwind v4: reemplaza los 3 @tailwind directives por esta sola línea */
+/* ✅ Tailwind v4 */
 @import "tailwindcss";
 
-/* ✅ Tailwind v4: clases propias con @utility (reemplaza @apply) */
+/* Paso 1: Nueva identidad y variables de diseño */
+:root {
+  --bg:         #F7F7F5; /* fondo general */
+  --surface:    #FFFFFF;
+  --ink:        #0B0B0B; /* texto principal */
+  --muted:      #6B6B6B;
+  --line:       #E7E7E4;
+  --accent:     #111111; /* botones */
+  --accent-2:   #22C55E; /* WhatsApp */
+  --season:     #FF3B30; /* rojo "temporada 26/27" para badges */
+
+  /* Compatibilidad con variables previas */
+  --amarillo:   #FCD116;
+  --azul:       #003893;
+  --rojo:       var(--season);
+  --fondo:      var(--bg);
+  --fondo-card: var(--surface);
+  --texto:      var(--ink);
+  --texto-suave:var(--muted);
+  --borde:      var(--line);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+}
+
+/* ✅ Clases de utilidad */
 @utility btn-primary {
-  background-color: #FCD116;
-  color: #000000;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.1rem;
+  background-color: var(--accent);
+  color: #FFFFFF;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem;
   font-weight: 700;
   padding: 12px 32px;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.08em;
   border: none;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
@@ -20,29 +50,29 @@
 
 @utility btn-secondary {
   background-color: transparent;
-  color: #FCD116;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.1rem;
+  color: var(--ink);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem;
   font-weight: 700;
   padding: 12px 32px;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  border: 2px solid #FCD116;
+  letter-spacing: 0.08em;
+  border: 1.5px solid var(--line);
   cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
 .card-producto {
-  background-color: #FFFFFF;
-  border: 1px solid #E5E7EB;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
   overflow: hidden;
   transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
 }
 
 .card-producto:hover {
-  border-color: #FCD116;
+  border-color: var(--ink);
   transform: translateY(-5px);
-  box-shadow: 0 12px 40px rgba(0, 56, 147, 0.12);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
 }
 
 @utility animate-fade-up {
@@ -53,28 +83,9 @@
   animation: slideInLeft 0.6s ease forwards;
 }
 
-/* Variables CSS */
-:root {
-  --amarillo:     #FCD116;
-  --azul:         #003893;
-  --rojo:         #CE1126;
-  --fondo:        #F8F9FA;      /* ← antes era #0A0A0A, ahora gris muy claro */
-  --fondo-card:   #FFFFFF;      /* blanco puro para las tarjetas */
-  --texto:        #111827;      /* casi negro pero suave */
-  --texto-suave:  #6B7280;      /* gris para subtítulos */
-  --borde:        #E5E7EB;      /* borde muy sutil */
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  background-color: var(--fondo);   /* ← cambia de negro a gris claro */
-  color: var(--texto);
-}
-
 /* Hover states */
-.btn-primary:hover   { background-color: #ffffff; color: #000; }
-.btn-secondary:hover { background-color: #FCD116; color: #000; }
+.btn-primary:hover   { background-color: var(--ink); color: #FFFFFF; }
+.btn-secondary:hover { background-color: var(--line); color: var(--ink); }
 
 /* Animaciones */
 @keyframes fadeInUp {
@@ -89,7 +100,34 @@ body {
   to { transform: rotate(360deg); }
 }
 
+/* Variables de color y temas (Figma style) */
+:root {
+  --surface: #FFFFFF;
+  --bg: #F4F4F5;
+  --ink: #09090B;
+  --muted: #71717A;
+  --season: #E11D48; /* Rojo de acento para etiquetas "NUEVO" o descuentos */
+  --line: #E4E4E7;
+}
+
+/* Estilo para los botones principales */
+.btn-primary {
+  background-color: var(--ink);
+  color: #FFFFFF;
+  padding: 14px 28px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar       { width: 6px; }
-::-webkit-scrollbar-track { background: #0A0A0A; }
-::-webkit-scrollbar-thumb { background: #FCD116; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--muted); }

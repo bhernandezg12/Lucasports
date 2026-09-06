@@ -31,7 +31,7 @@ export default function Navbar() {
       LUCASPORTS
     </p>
     <p style={{ fontSize: '0.55rem', color: '#ffffff', letterSpacing: '0.35em', textTransform: 'uppercase' }}>
-      Manizales · Colombia 🇨🇴
+      Tienda deportiva · Manizales · Colombia 
     </p>
   </div>
 </Link>

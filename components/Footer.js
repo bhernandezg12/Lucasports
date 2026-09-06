@@ -29,12 +29,12 @@ export default function Footer() {
                   LUCASPORTS
                 </p>
                 <p style={{ fontSize: '0.6rem', color: '#ffffff55', letterSpacing: '0.2em' }}>
-                  MANIZALES · COLOMBIA
+                  TIENDA DEPORTIVA · MANIZALES  
                 </p>
               </div>
             </div>
             <p style={{ color: '#444', fontSize: '0.83rem', lineHeight: 1.7 }}>
-              Tu tienda de camisetas de la Selección Colombia en Manizales.
+              Tu tienda de ropa deportiva en Manizales.
               Productos oficiales y conmemorativos. Envíos a todo el país con pago contra entrega.
             </p>
           </div>
@@ -90,10 +90,10 @@ export default function Footer() {
         {/* Bottom */}
         <div style={{ borderTop: '1px solid #111', marginTop: 32, paddingTop: 20, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
           <p style={{ color: '#2a2a2a', fontSize: '0.78rem' }}>
-            © {new Date().getFullYear()} LucaSports · Manizales, Colombia 🇨🇴
+            © {new Date().getFullYear()} LucaSports · TIENDA DEPORTIVA · MANIZALES  
           </p>
           <p style={{ color: '#2a2a2a', fontSize: '0.78rem' }}>
-            Hecho con 💛💙❤️ para los hinchas de la Tricolor
+            Hecho con 💛💙❤️ para los verdaderos hinchas
           </p>
         </div>
       </div>

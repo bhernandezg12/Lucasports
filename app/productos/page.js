@@ -4,8 +4,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import ProductCard from '@/components/ProductCard';
  
-const CATEGORIAS = ['Todos', 'Oficial', 'Entrenamiento', 'Edición Especial'];
- 
+const CATEGORIAS = ['Todos', 'Premier League', 'LaLiga', 'Serie A', 'Bundesliga', 'Ligue 1', 'Selecciones', 'Entrenamiento', 'Retro']; 
 // Productos estáticos mientras no haya datos en Firebase
 const PRODUCTOS_ESTATICOS = [
   {
@@ -85,7 +84,7 @@ export default function ProductosPage() {
             LUCASPORTS · MANIZALES
           </p>
           <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 'clamp(2.5rem, 6vw, 5rem)', color: '#fff', lineHeight: 0.9 }}>
-            CATÁLOGO DE<br /><span style={{ color: '#FCD116' }}>CAMISETAS</span>
+            CATÁLOGO <br /><span style={{ color: '#FCD116' }}> TEMPORADA 26/27</span>
           </h1>
           <p style={{ color: '#7799bb', marginTop: 14, fontSize: '0.9rem' }}>
             💵 Pago contra entrega &nbsp;·&nbsp; 📦 Envíos a toda Colombia &nbsp;·&nbsp; 💬 Pedidos por WhatsApp

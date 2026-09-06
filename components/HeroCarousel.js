@@ -46,18 +46,19 @@ const SLIDES = [
   },
 ];
 
-export default function HeroCarousel() {
-  const [actual, setActual] = useState(0);
-  const [animando, setAnimando] = useState(false);
-
-  const cambiarSlide = (nuevo) => {
-    if (animando) return;
-    setAnimando(true);
-    setTimeout(() => {
-      setActual(nuevo);
-      setAnimando(false);
-    }, 300);
-  };
+export default function HeroCarousel({ productos = [] }) {
+  // Construye dinámicamente los slides tomando hasta 5 productos
+  const slides = productos.slice(0, 5).map(p => ({
+    id: p.id,
+    badge: p.liga ?? 'TEMPORADA 26/27',
+    titulo: p.nombre, // ← Fix: usa el nombre real del producto
+    subtitulo: p.descripcion?.slice(0, 90) || '',
+    precio: p.precio,
+    href: `/productos/${p.id}`,
+    imageUrl: p.imageUrls?.[0] || p.imageUrl || '',
+    bg: 'linear-gradient(180deg, #0B0B0B 0%, #1a1a1a 100%)',
+    acento: '#FFFFFF',
+  }));
 
   // Auto-avance cada 5 segundos
   useEffect(() => {
