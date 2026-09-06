@@ -4,60 +4,64 @@ import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 /**
- * HeroCarousel — Estilo Figma "NEW COLLECTION"
+ * HeroCarousel — media pantalla, hasta N slides
  *
- * Recibe hasta 3 productos desde el server y arma slides automáticos.
- * Si no hay productos, muestra slides estáticos con placeholders.
- * ¡El título del producto SÍ aparece porque lo tomamos de `p.nombre`!
+ * Prioridad de contenido:
+ *  1. slidesAdmin (colección Firestore `banners_hero` gestionada desde /admin)
+ *  2. productos destacados (mapeados como slide)
+ *  3. SLIDES_FALLBACK (estáticos)
  */
 
 const SLIDES_FALLBACK = [
-  {
-    id: 'fb-1',
-    tag: 'Nuevo · Temporada 26/27',
-    titulo: 'Las Grandes Ligas Están de Vuelta',
-    subtitulo: 'Camisetas oficiales de tus clubes favoritos. Premier League, LaLiga, Serie A, Bundesliga y más.',
-    cta: 'Explorar tienda',
-    href: '/productos',
-    imageUrl: '',
-    liga: 'TEMPORADA 26/27',
-  },
-  {
-    id: 'fb-2',
-    tag: 'Selecciones',
-    titulo: 'Viste los Colores de tu País',
-    subtitulo: 'Las camisetas de las selecciones más grandes rumbo al Mundial 2026.',
-    cta: 'Ver selecciones',
-    href: '/productos?cat=Selecciones',
-    imageUrl: '',
-    liga: 'INTERNACIONAL',
-  },
-  {
-    id: 'fb-3',
-    tag: 'Retro · Coleccionista',
-    titulo: 'Camisetas Clásicas que Marcaron Época',
-    subtitulo: 'Rediseños vintage de los partidos que nunca olvidarás.',
-    cta: 'Ver retro',
-    href: '/productos?cat=Retro',
-    imageUrl: '',
-    liga: 'COLECCIÓN RETRO',
-  },
+  { id: 'fb-1', tag: 'Nuevo · Temporada 26/27', titulo: 'Las Grandes Ligas Están de Vuelta',
+    subtitulo: 'Camisetas oficiales de tus clubes favoritos.', cta: 'Explorar tienda',
+    href: '/productos', imageUrl: '', liga: 'TEMPORADA 26/27' },
+  { id: 'fb-2', tag: 'Selecciones', titulo: 'Viste los Colores de tu País',
+    subtitulo: 'Las camisetas de las selecciones rumbo al Mundial 2026.', cta: 'Ver selecciones',
+    href: '/productos?cat=Selecciones', imageUrl: '', liga: 'INTERNACIONAL' },
+  { id: 'fb-3', tag: 'Retro · Coleccionista', titulo: 'Camisetas Clásicas que Marcaron Época',
+    subtitulo: 'Rediseños vintage de los partidos que nunca olvidarás.', cta: 'Ver retro',
+    href: '/productos?cat=Retro', imageUrl: '', liga: 'COLECCIÓN RETRO' },
+  { id: 'fb-4', tag: 'Preventa · LaLiga', titulo: 'LaLiga 26/27 en Preventa',
+    subtitulo: 'Reserva la camiseta de tu club antes del kickoff.', cta: 'Ver LaLiga',
+    href: '/productos?cat=LaLiga', imageUrl: '', liga: 'LALIGA' },
+  { id: 'fb-5', tag: 'Envío nacional', titulo: 'Pago Contra Entrega en Toda Colombia',
+    subtitulo: 'Recibe tu camiseta en tu casa y paga al recibir.', cta: 'Cómo pedir',
+    href: '/contacto', imageUrl: '', liga: 'ENVÍOS' },
 ];
 
-export default function HeroCarousel({ productos = [] }) {
-  const slides = productos.length > 0
-    ? productos.slice(0, 3).map(p => ({
-        id: p.id,
-        tag: p.liga || p.categoria || 'Nuevo · 26/27',
-        titulo: p.nombre,                    // ← ¡el fix! ahora sí aparece el nombre real
-        subtitulo: p.descripcion?.slice(0, 130) || 'Camiseta oficial de la temporada 26/27.',
-        cta: 'Ver producto',
-        href: `/productos/${p.id}`,
-        imageUrl: p.imageUrls?.[0] || p.imageUrl || '',
-        liga: (p.liga || p.categoria || 'TEMPORADA 26/27').toUpperCase(),
-        precio: p.precio,
-      }))
-    : SLIDES_FALLBACK;
+export default function HeroCarousel({ productos = [], slidesAdmin = [] }) {
+  // 1) Si el admin cargó slides personalizados, usarlos
+  // 2) Si no, generar desde productos destacados
+  // 3) Si tampoco, fallback estático
+  let slides;
+  if (slidesAdmin.length > 0) {
+    slides = slidesAdmin.slice(0, 8).map(sl => ({
+      id: sl.id,
+      tag: sl.tag || 'Lucasports',
+      titulo: sl.titulo || 'Lucasports',
+      subtitulo: sl.subtitulo || '',
+      cta: sl.cta || 'Ver más',
+      href: sl.href || '/productos',
+      imageUrl: sl.imageUrl || '',
+      liga: (sl.liga || 'LUCASPORTS').toUpperCase(),
+      precio: sl.precio,
+    }));
+  } else if (productos.length > 0) {
+    slides = productos.slice(0, 5).map(p => ({
+      id: p.id,
+      tag: p.liga || p.categoria || 'Nuevo · 26/27',
+      titulo: p.nombre,
+      subtitulo: p.descripcion?.slice(0, 130) || 'Camiseta oficial de la temporada 26/27.',
+      cta: 'Ver producto',
+      href: `/productos/${p.id}`,
+      imageUrl: p.imageUrls?.[0] || p.imageUrl || '',
+      liga: (p.liga || p.categoria || 'TEMPORADA 26/27').toUpperCase(),
+      precio: p.precio,
+    }));
+  } else {
+    slides = SLIDES_FALLBACK;
+  }
 
   const [actual, setActual] = useState(0);
   const [fade, setFade] = useState(false);
@@ -81,27 +85,27 @@ export default function HeroCarousel({ productos = [] }) {
   return (
     <section style={{
       background: 'var(--bg)',
-      paddingTop: 90,
-      paddingBottom: 32,
+      paddingTop: 100,
+      paddingBottom: 24,
       position: 'relative',
       overflow: 'hidden',
     }}>
       <div className="container-wide">
 
-        {/* Grid del hero: texto izquierda, imagen derecha */}
+        {/* Grid del hero: media pantalla */}
         <div
-          className="grid grid-cols-1 lg:grid-cols-2"
+          className="grid grid-cols-1 lg:grid-cols-2 hero-grid"
           style={{
-            gap: 48,
+            gap: 40,
             alignItems: 'center',
-            minHeight: 'min(78vh, 720px)',
+            minHeight: 'min(50vh, 460px)',
             opacity: fade ? 0 : 1,
             transition: 'opacity 0.22s ease',
           }}
         >
           {/* Columna texto */}
-          <div style={{ maxWidth: 620 }}>
-            <div className="chip chip-light" style={{ marginBottom: 20 }}>
+          <div style={{ maxWidth: 560 }}>
+            <div className="chip chip-light" style={{ marginBottom: 16 }}>
               <span style={{
                 width: 6, height: 6, borderRadius: '50%',
                 background: 'var(--season)',
@@ -113,85 +117,70 @@ export default function HeroCarousel({ productos = [] }) {
             <h1 style={{
               fontFamily: 'var(--font-display)',
               fontWeight: 800,
-              fontSize: 'clamp(2.6rem, 6.4vw, 5.2rem)',
-              lineHeight: 0.98,
+              fontSize: 'clamp(2rem, 4.8vw, 3.6rem)',
+              lineHeight: 1.02,
               color: 'var(--ink)',
               letterSpacing: '-0.03em',
-              marginBottom: 24,
+              marginBottom: 18,
             }}
             className="text-balance"
             >
               {s.titulo}
             </h1>
 
-            <p style={{
-              fontSize: '1.05rem',
-              lineHeight: 1.6,
-              color: 'var(--muted)',
-              marginBottom: 32,
-              maxWidth: 520,
-            }}>
-              {s.subtitulo}
-            </p>
+            {s.subtitulo && (
+              <p style={{
+                fontSize: '1rem',
+                lineHeight: 1.55,
+                color: 'var(--muted)',
+                marginBottom: 22,
+                maxWidth: 480,
+              }}>
+                {s.subtitulo}
+              </p>
+            )}
 
             {s.precio > 0 && (
               <p style={{
                 fontFamily: 'var(--font-display)',
                 fontWeight: 700,
-                fontSize: '1.6rem',
+                fontSize: '1.35rem',
                 color: 'var(--ink)',
-                marginBottom: 28,
+                marginBottom: 20,
               }}>
-                ${s.precio.toLocaleString('es-CO')}
-                <span style={{ fontSize: '0.85rem', color: 'var(--muted)', marginLeft: 8, fontWeight: 400 }}>
+                ${Number(s.precio).toLocaleString('es-CO')}
+                <span style={{ fontSize: '0.8rem', color: 'var(--muted)', marginLeft: 8, fontWeight: 400 }}>
                   COP
                 </span>
               </p>
             )}
 
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
               <Link href={s.href} style={{ textDecoration: 'none' }}>
                 <button className="btn-primary">
                   {s.cta} →
                 </button>
               </Link>
               <a
-                href="https://wa.me/573174721539?text=Hola%20Lucasports!%20Quiero%20info%20de%20la%20temporada%2026%2F27"
+                href="https://wa.me/573174721539?text=Hola%20Lucasports!%20Quiero%20info"
                 target="_blank"
                 rel="noreferrer"
                 style={{ textDecoration: 'none' }}
               >
                 <button className="btn-outline">
-                  💬 Consultar por WhatsApp
+                  💬 WhatsApp
                 </button>
               </a>
             </div>
-
-            {/* Trust bar */}
-            <div style={{
-              display: 'flex', gap: 24, flexWrap: 'wrap',
-              marginTop: 40, paddingTop: 24,
-              borderTop: '1px solid var(--line)',
-            }}>
-              {[
-                { icon: '💵', text: 'Pago contra entrega' },
-                { icon: '📦', text: 'Envíos a toda Colombia' },
-                { icon: '⭐', text: 'Productos oficiales' },
-              ].map(g => (
-                <div key={g.text} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: '1rem' }}>{g.icon}</span>
-                  <span style={{ color: 'var(--muted)', fontSize: '0.82rem', fontWeight: 500 }}>{g.text}</span>
-                </div>
-              ))}
-            </div>
           </div>
 
-          {/* Columna imagen */}
+          {/* Columna imagen — más compacta (media pantalla) */}
           <div style={{
             position: 'relative',
-            aspectRatio: '4/5',
-            maxHeight: 640,
-            borderRadius: 20,
+            aspectRatio: '16/11',
+            maxHeight: 420,
+            width: '100%',
+            borderRadius: 18,
             overflow: 'hidden',
             background: 'var(--surface)',
             border: '1px solid var(--line)',
@@ -207,30 +196,28 @@ export default function HeroCarousel({ productos = [] }) {
               />
             ) : (
               <div style={{ textAlign: 'center', padding: 24 }}>
-                <div style={{ fontSize: '7rem', opacity: 0.25 }}>👕</div>
-                <p style={{ marginTop: 12, fontSize: '0.85rem', color: 'var(--muted-2)', fontWeight: 500 }}>
+                <div style={{ fontSize: '5rem', opacity: 0.22 }}>👕</div>
+                <p style={{ marginTop: 8, fontSize: '0.8rem', color: 'var(--muted-2)', fontWeight: 500 }}>
                   Imagen próximamente
                 </p>
               </div>
             )}
 
-            {/* Badge de liga sobre la imagen */}
             <div style={{
-              position: 'absolute', top: 20, left: 20,
+              position: 'absolute', top: 16, left: 16,
               background: 'rgba(11,11,11,0.85)', color: '#fff',
-              padding: '8px 14px', borderRadius: 999,
-              fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.05em',
+              padding: '6px 12px', borderRadius: 999,
+              fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.05em',
               backdropFilter: 'blur(8px)',
             }}>
               {s.liga}
             </div>
 
-            {/* Contador */}
             <div style={{
-              position: 'absolute', bottom: 20, right: 20,
+              position: 'absolute', bottom: 16, right: 16,
               background: 'rgba(255,255,255,0.9)', color: 'var(--ink)',
-              padding: '6px 14px', borderRadius: 999,
-              fontSize: '0.75rem', fontWeight: 600,
+              padding: '5px 12px', borderRadius: 999,
+              fontSize: '0.72rem', fontWeight: 600,
               backdropFilter: 'blur(8px)',
             }}>
               {String(actual + 1).padStart(2, '0')} / {String(slides.length).padStart(2, '0')}
@@ -238,21 +225,21 @@ export default function HeroCarousel({ productos = [] }) {
           </div>
         </div>
 
-        {/* Controles del carrusel */}
+        {/* Controles */}
         {slides.length > 1 && (
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            marginTop: 24, paddingTop: 20,
+            marginTop: 18, paddingTop: 16,
             borderTop: '1px solid var(--line)',
           }}>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 6 }}>
               {slides.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => cambiar(i)}
                   aria-label={`Slide ${i + 1}`}
                   style={{
-                    width: i === actual ? 28 : 8, height: 8,
+                    width: i === actual ? 24 : 8, height: 8,
                     borderRadius: 999,
                     background: i === actual ? 'var(--ink)' : 'var(--line-strong)',
                     border: 'none', cursor: 'pointer',
@@ -266,7 +253,7 @@ export default function HeroCarousel({ productos = [] }) {
                 onClick={() => cambiar(actual - 1)}
                 aria-label="Anterior"
                 style={{
-                  width: 40, height: 40, borderRadius: '50%',
+                  width: 36, height: 36, borderRadius: '50%',
                   background: 'var(--surface)', border: '1px solid var(--line)',
                   cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   color: 'var(--ink)', transition: 'all 0.2s',
@@ -274,13 +261,13 @@ export default function HeroCarousel({ productos = [] }) {
                 onMouseEnter={e => { e.currentTarget.style.background = 'var(--ink)'; e.currentTarget.style.color = '#fff'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.color = 'var(--ink)'; }}
               >
-                <ChevronLeft size={18} />
+                <ChevronLeft size={16} />
               </button>
               <button
                 onClick={() => cambiar(actual + 1)}
                 aria-label="Siguiente"
                 style={{
-                  width: 40, height: 40, borderRadius: '50%',
+                  width: 36, height: 36, borderRadius: '50%',
                   background: 'var(--surface)', border: '1px solid var(--line)',
                   cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   color: 'var(--ink)', transition: 'all 0.2s',
@@ -288,7 +275,7 @@ export default function HeroCarousel({ productos = [] }) {
                 onMouseEnter={e => { e.currentTarget.style.background = 'var(--ink)'; e.currentTarget.style.color = '#fff'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.color = 'var(--ink)'; }}
               >
-                <ChevronRight size={18} />
+                <ChevronRight size={16} />
               </button>
             </div>
           </div>

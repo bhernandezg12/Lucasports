@@ -27,20 +27,20 @@ export default function Navbar() {
         transition: 'border-color 0.2s ease',
       }}
     >
-      <div className="container-wide flex items-center justify-between" style={{ height: 68 }}>
+      <div className="container-wide flex items-center justify-between" style={{ height: 84 }}>
 
-        {/* Logo */}
+        {/* Logo — más grande, identidad principal */}
         <Link href="/" className="flex items-center gap-3" style={{ textDecoration: 'none' }}>
           <div style={{
-            width: 40, height: 40, borderRadius: '50%', overflow: 'hidden',
+            width: 60, height: 60, borderRadius: '50%', overflow: 'hidden',
             background: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0,
           }}>
             <Image
               src="/logo.png"
               alt="Lucasports"
-              width={40}
-              height={40}
+              width={60}
+              height={60}
               style={{ borderRadius: '50%', objectFit: 'cover' }}
             />
           </div>
@@ -48,19 +48,20 @@ export default function Navbar() {
             <p style={{
               fontFamily: 'var(--font-display)',
               fontWeight: 800,
-              fontSize: '1.15rem',
+              fontSize: '1.55rem',
               color: 'var(--ink)',
               lineHeight: 1,
-              letterSpacing: '-0.01em',
+              letterSpacing: '-0.02em',
             }}>
               LUCASPORTS
             </p>
             <p style={{
-              fontSize: '0.62rem',
+              fontSize: '0.68rem',
               color: 'var(--muted)',
-              letterSpacing: '0.18em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
-              marginTop: 2,
+              marginTop: 4,
+              fontWeight: 500,
             }}>
               Temporada 26/27
             </p>
