@@ -1,147 +1,179 @@
+import Link from 'next/link';
+import { MessageCircle, Instagram, MapPin } from 'lucide-react';
+
+const FAQS = [
+  { q: '¿Cómo hago un pedido?', a: 'Agrega las camisetas al carrito, selecciona la talla y toca "Pedir por WhatsApp". Tu pedido llega listo a nuestro chat para confirmarlo.' },
+  { q: '¿Cómo es el pago?', a: 'Manejamos pago contra entrega — pagas únicamente cuando recibes el paquete en tu casa. No hay que pagar nada por adelantado.' },
+  { q: '¿Quién paga el envío?', a: 'El costo del envío lo asume el cliente. El valor depende de la ciudad de destino y lo coordinamos contigo por WhatsApp.' },
+  { q: '¿Hacen envíos a toda Colombia?', a: '¡Sí! Enviamos a cualquier ciudad del país mediante empresas de transporte confiables.' },
+  { q: '¿Cuánto demora el envío?', a: 'Entre 2 y 5 días hábiles según la ciudad de destino.' },
+  { q: '¿Las camisetas son originales?', a: 'Manejamos camisetas oficiales y réplicas premium. En cada producto está descrito claramente el tipo.' },
+];
+
 export default function ContactoPage() {
   return (
-    <div style={{ paddingTop: 64, minHeight: '100vh' }}>
- 
+    <div style={{ paddingTop: 90, minHeight: '100vh', background: 'var(--bg)' }}>
+
       {/* Header */}
-      <div style={{ background: 'linear-gradient(135deg, #003893, #001a4d)', padding: '65px 0 45px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', right: '-5%', top: '50%', transform: 'translateY(-50%)', width: '40%', height: '200%', borderRadius: '50%', border: '1px solid rgba(252,209,22,0.07)' }} />
-        <div className="max-w-7xl mx-auto px-4">
-          <p style={{ color: '#FCD11666', fontFamily: 'Bebas Neue, sans-serif', letterSpacing: '0.3em', fontSize: '0.8rem', marginBottom: 10 }}>
-            LUCASPORTS
-          </p>
-          <h1 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 'clamp(2.5rem, 6vw, 5rem)', color: '#fff', lineHeight: 0.9 }}>
-            CONTÁCTANOS
-          </h1>
-          <p style={{ color: '#7799bb', marginTop: 14, fontSize: '0.9rem' }}>
-            Respondemos rápido y con mucho gusto 🇨🇴
-          </p>
-        </div>
+      <div className="container-wide" style={{ padding: '32px 24px 24px' }}>
+        <p style={{
+          color: 'var(--muted)', fontSize: '0.78rem', fontWeight: 600,
+          letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10,
+        }}>
+          Lucasports · Manizales
+        </p>
+        <h1 style={{
+          fontFamily: 'var(--font-display)', fontWeight: 800,
+          fontSize: 'clamp(2.2rem, 5vw, 3.6rem)', color: 'var(--ink)',
+          letterSpacing: '-0.03em', lineHeight: 1.02,
+        }}>
+          Contacto
+        </h1>
+        <p style={{ color: 'var(--muted)', marginTop: 10, fontSize: '0.95rem', maxWidth: 560 }}>
+          Respondemos rápido y con mucho gusto. Escríbenos por WhatsApp para pedidos, disponibilidad, tallas o cualquier duda.
+        </p>
       </div>
- 
-      {/* Banda tricolor */}
-      <div style={{ display: 'flex', height: 6 }}>
-        <div style={{ flex: 4, background: '#FCD116' }} />
-        <div style={{ flex: 2, background: '#003893' }} />
-        <div style={{ flex: 2, background: '#CE1126' }} />
-      </div>
- 
-      <div className="max-w-5xl mx-auto px-4 py-16">
- 
+
+      <div className="container-wide" style={{ padding: '24px 24px 72px' }}>
+
         {/* Cards de contacto */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3" style={{ gap: 16, marginBottom: 64 }}>
           {[
             {
-              icon: '💬',
+              icon: MessageCircle,
+              iconColor: 'var(--whatsapp)',
               label: 'WhatsApp',
               value: '317 472 1539',
               sub: 'Pedidos · Preguntas · Disponibilidad',
-              link: "https://wa.me/573174721539?text=Hola%20Luca'Sports!%20Quisiera%20más%20información%20🇨🇴",
-              btnText: 'ABRIR WHATSAPP',
-              btnColor: '#25D366',
+              link: "https://wa.me/573174721539?text=Hola%20Lucasports!%20Quisiera%20más%20información",
+              btnText: 'Abrir WhatsApp',
+              btnClass: 'btn-whatsapp',
             },
             {
-              icon: '📷',
+              icon: Instagram,
+              iconColor: '#E1306C',
               label: 'Instagram',
               value: '@lucasports',
-              sub: 'Síguenos para ver novedades',
+              sub: 'Síguenos para ver las novedades',
               link: 'https://www.instagram.com/lucasports',
-              btnText: 'VER PERFIL',
-              btnColor: '#E1306C',
+              btnText: 'Ver perfil',
+              btnClass: 'btn-outline',
             },
             {
-              icon: '📍',
+              icon: MapPin,
+              iconColor: 'var(--ink)',
               label: 'Ubicación',
               value: 'Manizales, Caldas',
-              sub: 'Envíos a toda Colombia 🇨🇴',
+              sub: 'Envíos a toda Colombia',
               link: null,
               btnText: null,
-              btnColor: null,
+              btnClass: null,
             },
           ].map(c => (
             <div key={c.label}
-              style={{ background: '#111', border: '1px solid #1e1e1e', padding: '32px 24px', textAlign: 'center', transition: 'border-color 0.2s' }}
-              className="hover:border-yellow-400">
-              <p style={{ fontSize: '2.8rem', marginBottom: 16 }}>{c.icon}</p>
-              <p style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#FCD116', fontSize: '1.1rem', letterSpacing: '0.12em', marginBottom: 6 }}>
-                {c.label}
-              </p>
-              <p style={{ color: '#fff', fontWeight: 600, fontSize: '1rem', marginBottom: 6 }}>{c.value}</p>
-              <p style={{ color: '#555', fontSize: '0.8rem', marginBottom: c.link ? 20 : 0 }}>{c.sub}</p>
+              style={{
+                background: 'var(--surface)', border: '1px solid var(--line)',
+                borderRadius: 16, padding: 28,
+                display: 'flex', flexDirection: 'column', gap: 14,
+                transition: 'border-color 0.2s',
+              }}>
+              <div style={{
+                width: 48, height: 48, borderRadius: 12,
+                background: 'var(--surface-alt)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <c.icon size={22} color={c.iconColor} />
+              </div>
+              <div>
+                <p style={{
+                  fontSize: '0.78rem', fontWeight: 600,
+                  color: 'var(--muted)', letterSpacing: '0.08em',
+                  textTransform: 'uppercase', marginBottom: 6,
+                }}>
+                  {c.label}
+                </p>
+                <p style={{ color: 'var(--ink)', fontWeight: 700, fontSize: '1.05rem', marginBottom: 4 }}>
+                  {c.value}
+                </p>
+                <p style={{ color: 'var(--muted)', fontSize: '0.85rem', lineHeight: 1.5 }}>{c.sub}</p>
+              </div>
               {c.link && (
-                <a href={c.link} target="_blank"
-                  style={{
-                    display: 'inline-block',
-                    background: c.btnColor, color: '#fff',
-                    fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.85rem',
-                    letterSpacing: '0.12em', padding: '10px 24px',
-                    textDecoration: 'none'
-                  }}>
-                  {c.btnText}
+                <a href={c.link} target="_blank" rel="noreferrer" style={{ textDecoration: 'none', marginTop: 'auto' }}>
+                  <button className={c.btnClass} style={{ width: '100%', justifyContent: 'center', padding: '11px 20px', fontSize: '0.85rem' }}>
+                    {c.btnText}
+                  </button>
                 </a>
               )}
             </div>
           ))}
         </div>
- 
+
         {/* FAQ */}
-        <div>
-          <h2 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '2rem', color: '#fff', marginBottom: 28, letterSpacing: '0.05em' }}>
-            PREGUNTAS FRECUENTES
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {[
-              {
-                q: '¿Cómo hago un pedido?',
-                a: 'Agrega las camisetas al carrito, selecciona la talla y haz clic en "Enviar por WhatsApp". Tu pedido llegará listo a nuestro chat para confirmarlo.',
-              },
-              {
-                q: '¿Cómo es el pago?',
-                a: 'Manejamos pago CONTRA ENTREGA — pagas únicamente cuando recibes el paquete en tu casa. No hay que pagar nada por adelantado.',
-              },
-              {
-                q: '¿Quién paga el envío?',
-                a: 'El costo del envío lo asume el cliente. El valor depende de la ciudad de destino y lo coordinamos contigo directamente por WhatsApp.',
-              },
-              {
-                q: '¿Hacen envíos a toda Colombia?',
-                a: '¡Sí! Enviamos a cualquier ciudad del país a través de empresas de transporte confiables.',
-              },
-              {
-                q: '¿Cuánto demora el envío?',
-                a: 'Generalmente entre 2 y 5 días hábiles según la ciudad de destino.',
-              },
-              {
-                q: '¿Las camisetas son originales?',
-                a: 'Manejamos camisetas oficiales y réplicas de alta calidad. Cada producto está descrito claramente en el catálogo.',
-              },
-            ].map((faq, i) => (
-              <div key={i} style={{ background: '#0e0e0e', border: '1px solid #1a1a1a', padding: '20px 22px' }}>
-                <p style={{ color: '#FCD116', fontWeight: 700, fontSize: '0.9rem', marginBottom: 8 }}>
-                  ❓ {faq.q}
+        <div style={{ maxWidth: 780, margin: '0 auto' }}>
+          <div style={{ marginBottom: 32, textAlign: 'center' }}>
+            <p style={{ color: 'var(--muted)', fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>
+              Ayuda
+            </p>
+            <h2 style={{
+              fontFamily: 'var(--font-display)', fontWeight: 800,
+              fontSize: 'clamp(1.8rem, 4vw, 2.4rem)', color: 'var(--ink)',
+              letterSpacing: '-0.02em',
+            }}>
+              Preguntas frecuentes
+            </h2>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {FAQS.map((faq, i) => (
+              <details key={i} style={{
+                background: 'var(--surface)', border: '1px solid var(--line)',
+                borderRadius: 12, padding: '18px 22px',
+                cursor: 'pointer',
+              }}>
+                <summary style={{
+                  color: 'var(--ink)', fontWeight: 600, fontSize: '0.95rem',
+                  listStyle: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                }}>
+                  {faq.q}
+                  <span style={{ color: 'var(--muted)', fontSize: '1.2rem', lineHeight: 1 }}>+</span>
+                </summary>
+                <p style={{ color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.7, marginTop: 12 }}>
+                  {faq.a}
                 </p>
-                <p style={{ color: '#777', fontSize: '0.85rem', lineHeight: 1.65 }}>{faq.a}</p>
-              </div>
+              </details>
             ))}
           </div>
-        </div>
- 
-        {/* CTA final */}
-        <div style={{ marginTop: 60, background: 'linear-gradient(135deg, #003893, #001a4d)', padding: '40px 32px', textAlign: 'center' }}>
-          <p style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#FCD116', fontSize: '0.85rem', letterSpacing: '0.25em', marginBottom: 10 }}>
-            ¿TIENES ALGUNA OTRA PREGUNTA?
-          </p>
-          <h3 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '2.2rem', color: '#fff', marginBottom: 20 }}>
-            ESCRÍBENOS POR WHATSAPP
-          </h3>
-          <a href="https://wa.me/573174721539?text=Hola%20Luca'Sports!%20Tengo%20una%20pregunta%20🇨🇴" target="_blank"
-            style={{
-              display: 'inline-block',
-              background: '#25D366', color: '#fff',
-              fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.1rem',
-              letterSpacing: '0.15em', padding: '16px 48px', textDecoration: 'none'
+
+          {/* CTA final */}
+          <div style={{
+            marginTop: 56, background: 'var(--ink)', color: '#fff',
+            borderRadius: 20, padding: 'clamp(28px, 4vw, 44px)',
+            textAlign: 'center',
+          }}>
+            <p style={{
+              fontSize: '0.78rem', fontWeight: 600, letterSpacing: '0.12em',
+              textTransform: 'uppercase', opacity: 0.7, marginBottom: 10,
             }}>
-            💬 317 472 1539
-          </a>
+              ¿Tienes otra pregunta?
+            </p>
+            <h3 style={{
+              fontFamily: 'var(--font-display)', fontWeight: 800,
+              fontSize: 'clamp(1.8rem, 4vw, 2.4rem)', letterSpacing: '-0.02em',
+              marginBottom: 24,
+            }}>
+              Escríbenos por WhatsApp
+            </h3>
+            <a
+              href="https://wa.me/573174721539?text=Hola%20Lucasports!%20Tengo%20una%20pregunta"
+              target="_blank"
+              rel="noreferrer"
+              style={{ textDecoration: 'none' }}
+            >
+              <button className="btn-whatsapp" style={{ padding: '14px 32px', fontSize: '0.95rem' }}>
+                💬 317 472 1539
+              </button>
+            </a>
+          </div>
         </div>
       </div>
     </div>

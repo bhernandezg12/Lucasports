@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { ShoppingCart, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShoppingBag, MessageCircle, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 
@@ -12,165 +12,226 @@ export default function ProductCard({ product }) {
   const [error, setError] = useState('');
   const [added, setAdded] = useState(false);
   const [fotoActual, setFotoActual] = useState(0);
+  const [liked, setLiked] = useState(false);
   const { addToCart } = useCart();
 
-  // Construir array de imágenes (soporta tanto imageUrls[] como imageUrl string)
   const fotos = product.imageUrls?.length > 0
     ? product.imageUrls
-    : product.imageUrl
-      ? [product.imageUrl]
-      : [];
+    : product.imageUrl ? [product.imageUrl] : [];
 
-  const fotoAnterior = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setFotoActual(prev => (prev === 0 ? fotos.length - 1 : prev - 1));
-  };
-  const fotoSiguiente = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setFotoActual(prev => (prev === fotos.length - 1 ? 0 : prev + 1));
-  };
+  const stop = (e) => { e.preventDefault(); e.stopPropagation(); };
+  const fotoAnterior = (e) => { stop(e); setFotoActual(p => p === 0 ? fotos.length - 1 : p - 1); };
+  const fotoSiguiente = (e) => { stop(e); setFotoActual(p => p === fotos.length - 1 ? 0 : p + 1); };
 
   const handleAddToCart = () => {
-    if (!selectedSize) { setError('Selecciona una talla primero'); setTimeout(() => setError(''), 2500); return; }
+    if (!selectedSize) { setError('Selecciona una talla'); setTimeout(() => setError(''), 2500); return; }
     addToCart(product, selectedSize);
     setAdded(true);
     setTimeout(() => setAdded(false), 2500);
   };
 
   const handleDirectWA = () => {
-    if (!selectedSize) { setError('Selecciona una talla primero'); setTimeout(() => setError(''), 2500); return; }
+    if (!selectedSize) { setError('Selecciona una talla'); setTimeout(() => setError(''), 2500); return; }
     const precio = product.precio > 0 ? `$${product.precio.toLocaleString('es-CO')} COP` : 'precio a consultar';
-    const mensaje = `¡Hola Luca'Sports! 🇨🇴\n\nQuiero comprar:\n• *${product.nombre}*\n• Talla: *${selectedSize}*\n• Precio: ${precio}\n\n¿Me confirman disponibilidad? Pago contra entrega 🙏`;
+    const mensaje = `¡Hola Lucasports!\n\nQuiero comprar:\n• ${product.nombre}\n• Talla: ${selectedSize}\n• Precio: ${precio}\n\n¿Me confirman disponibilidad? Pago contra entrega 🙏`;
     window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(mensaje)}`, '_blank');
   };
 
   const tallas = product.tallas?.length > 0 ? product.tallas : TALLAS_DEFAULT;
 
   return (
-    <div className="card-producto group" style={{ display: 'flex', flexDirection: 'column' }}>
+    <div className="card-producto">
 
-      {/* ── Galería de imágenes con Enlace al Detalle ── */}
+      {/* ── Galería ── */}
       <Link href={`/productos/${product.id}`} style={{ textDecoration: 'none', display: 'block' }}>
-        <div style={{ background: '#1a1a1a', height: 300, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-
+        <div
+          className="placeholder-jersey"
+          style={{
+            aspectRatio: '4/5',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
           {fotos.length > 0 ? (
             <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={fotos[fotoActual]}
                 alt={product.nombre}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.3s ease' }}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
-
-              {/* Flechas de navegación — solo si hay más de 1 foto */}
               {fotos.length > 1 && (
                 <>
-                  <button onClick={fotoAnterior}
-                    style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
-                    <ChevronLeft size={18} color="#fff" />
+                  <button onClick={fotoAnterior} aria-label="Foto anterior"
+                    style={{
+                      position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)',
+                      background: 'rgba(255,255,255,0.95)', border: 'none', borderRadius: '50%',
+                      width: 32, height: 32, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2,
+                    }}>
+                    <ChevronLeft size={16} color="#0B0B0B" />
                   </button>
-                  <button onClick={fotoSiguiente}
-                    style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
-                    <ChevronRight size={18} color="#fff" />
+                  <button onClick={fotoSiguiente} aria-label="Siguiente foto"
+                    style={{
+                      position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+                      background: 'rgba(255,255,255,0.95)', border: 'none', borderRadius: '50%',
+                      width: 32, height: 32, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2,
+                    }}>
+                    <ChevronRight size={16} color="#0B0B0B" />
                   </button>
-
-                  {/* Indicadores de puntos */}
-                  <div style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 5, zIndex: 2 }}>
-                    {fotos.map((_, i) => (
-                      <button key={i} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setFotoActual(i); }}
-                        style={{ width: i === fotoActual ? 18 : 7, height: 7, borderRadius: i === fotoActual ? 4 : '50%', background: i === fotoActual ? '#FCD116' : 'rgba(255,255,255,0.4)', border: 'none', cursor: 'pointer', transition: 'all 0.2s', padding: 0 }} />
-                    ))}
-                  </div>
-
-                  {/* Contador de fotos */}
-                  <span style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: '0.7rem', padding: '3px 8px', borderRadius: 10, zIndex: 2 }}>
+                  {/* Contador foto */}
+                  <span style={{
+                    position: 'absolute', bottom: 10, right: 10,
+                    background: 'rgba(255,255,255,0.9)', color: 'var(--ink)',
+                    fontSize: '0.68rem', padding: '3px 9px', borderRadius: 999,
+                    fontWeight: 600,
+                  }}>
                     {fotoActual + 1}/{fotos.length}
                   </span>
                 </>
               )}
             </>
           ) : (
-            <div style={{ textAlign: 'center' }}>
-              <span style={{ fontSize: '5rem' }}>👕</span>
+            <div style={{ textAlign: 'center', padding: 24 }}>
+              <div style={{ fontSize: '4.5rem', opacity: 0.3 }}>👕</div>
+              <p style={{ marginTop: 10, fontSize: '0.72rem', color: 'var(--muted-2)', fontWeight: 500 }}>
+                Foto próximamente
+              </p>
             </div>
           )}
 
-          {/* Badges */}
-          {product.categoria && (
-            <span style={{ position: 'absolute', top: 12, left: 12, background: '#003893', color: '#FCD116', fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.7rem', letterSpacing: '0.15em', padding: '3px 10px', zIndex: 2 }}>
-              {product.categoria}
+          {/* Badge de liga (top-left) */}
+          {(product.liga || product.categoria) && (
+            <span style={{
+              position: 'absolute', top: 12, left: 12,
+              background: 'rgba(255,255,255,0.95)', color: 'var(--ink)',
+              fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.04em',
+              padding: '5px 10px', borderRadius: 999,
+              backdropFilter: 'blur(4px)',
+            }}>
+              {product.liga || product.categoria}
             </span>
           )}
+
+          {/* Badge especial (top-right, sobre corazón) */}
           {product.especial && (
-            <span style={{ position: 'absolute', top: fotos.length > 1 ? 38 : 12, left: 12, background: '#CE1126', color: '#fff', fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.7rem', letterSpacing: '0.1em', padding: '3px 10px', zIndex: 2 }}>
+            <span style={{
+              position: 'absolute', top: 12, right: 52,
+              background: 'var(--season)', color: '#fff',
+              fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.04em',
+              padding: '5px 10px', borderRadius: 999,
+            }}>
               {product.especial}
             </span>
           )}
+
+          {/* Like button */}
+          <button
+            onClick={(e) => { stop(e); setLiked(l => !l); }}
+            aria-label="Favorito"
+            style={{
+              position: 'absolute', top: 10, right: 10,
+              width: 34, height: 34, borderRadius: '50%',
+              background: 'rgba(255,255,255,0.95)', border: 'none',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              zIndex: 2,
+            }}>
+            <Heart size={16} color={liked ? '#FF3B30' : '#0B0B0B'} fill={liked ? '#FF3B30' : 'none'} />
+          </button>
         </div>
       </Link>
 
-      {/* Miniaturas de fotos (si hay más de 1) */}
-      {fotos.length > 1 && (
-        <div style={{ display: 'flex', gap: 4, padding: '8px 10px', background: '#111', overflowX: 'auto' }}>
-          {fotos.map((url, i) => (
-            <button key={i} onClick={() => setFotoActual(i)}
-              style={{ width: 44, height: 44, flexShrink: 0, border: `2px solid ${i === fotoActual ? '#FCD116' : 'transparent'}`, overflow: 'hidden', background: '#1a1a1a', cursor: 'pointer', padding: 0 }}>
-              <img src={url} alt={`Foto ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </button>
-          ))}
-        </div>
-      )}
-
       {/* ── Info ── */}
-      <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
-        
-        {/* Nombre del Producto con Enlace */}
+      <div style={{ padding: '18px 18px 20px', display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
+
+        {/* Nombre + precio */}
         <Link href={`/productos/${product.id}`} style={{ textDecoration: 'none' }}>
-          <h3 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.2rem', color: '#fff', letterSpacing: '0.04em', lineHeight: 1.15 }}>
-            {product.nombre}
-          </h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+            <h3 style={{
+              fontFamily: 'var(--font-display)', fontWeight: 600,
+              fontSize: '0.98rem', color: 'var(--ink)',
+              lineHeight: 1.3, letterSpacing: '-0.005em', flex: 1,
+            }}>
+              {product.nombre}
+            </h3>
+            <p style={{
+              fontFamily: 'var(--font-display)', fontWeight: 700,
+              fontSize: '1rem', color: 'var(--ink)', whiteSpace: 'nowrap',
+            }}>
+              {product.precio > 0
+                ? `$${product.precio.toLocaleString('es-CO')}`
+                : <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 500 }}>Consultar</span>
+              }
+            </p>
+          </div>
+          {product.descripcion && (
+            <p style={{
+              color: 'var(--muted)', fontSize: '0.82rem',
+              lineHeight: 1.5, marginTop: 6,
+              display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}>
+              {product.descripcion}
+            </p>
+          )}
         </Link>
 
-        {product.descripcion && (
-          <p style={{ color: '#777', fontSize: '0.8rem', lineHeight: 1.5, flex: 1 }}>{product.descripcion}</p>
-        )}
-
-        <p style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.7rem', color: '#FCD116', lineHeight: 1 }}>
-          {product.precio > 0
-            ? <>${product.precio.toLocaleString('es-CO')}<span style={{ fontSize: '0.8rem', color: '#666', marginLeft: 6, fontFamily: 'Barlow, sans-serif', fontWeight: 400 }}>COP</span></>
-            : <span style={{ fontSize: '1.1rem', color: '#888' }}>Consultar precio</span>
-          }
-        </p>
-
-        {/* Tallas */}
+        {/* Selector tallas compacto */}
         <div>
-          <p style={{ color: '#555', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 8 }}>
-            Talla {selectedSize && <span style={{ color: '#FCD116' }}>— {selectedSize}</span>}
-          </p>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {tallas.map(t => (
               <button key={t} onClick={() => setSelectedSize(t)}
-                style={{ width: 38, height: 38, border: `1.5px solid ${selectedSize === t ? '#FCD116' : '#2a2a2a'}`, background: selectedSize === t ? '#FCD116' : '#0A0A0A', color: selectedSize === t ? '#000' : '#666', fontWeight: selectedSize === t ? '700' : '400', fontSize: '0.78rem', cursor: 'pointer', transition: 'all 0.15s' }}>
+                style={{
+                  minWidth: 34, height: 30, padding: '0 10px',
+                  border: `1.5px solid ${selectedSize === t ? 'var(--ink)' : 'var(--line)'}`,
+                  background: selectedSize === t ? 'var(--ink)' : 'var(--surface)',
+                  color: selectedSize === t ? '#fff' : 'var(--ink)',
+                  fontSize: '0.75rem', fontWeight: 600,
+                  cursor: 'pointer', borderRadius: 8,
+                  transition: 'all 0.15s',
+                }}>
                 {t}
               </button>
             ))}
           </div>
+          {error && (
+            <p style={{ color: 'var(--season)', fontSize: '0.75rem', marginTop: 8 }}>
+              ⚠️ {error}
+            </p>
+          )}
         </div>
 
-        {error && <p style={{ color: '#CE1126', fontSize: '0.78rem' }}>⚠️ {error}</p>}
-
         {/* Botones */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
+        <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
           <button onClick={handleAddToCart}
-            style={{ width: '100%', padding: '11px', background: added ? '#003893' : '#FCD116', color: added ? '#FCD116' : '#000', fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.95rem', letterSpacing: '0.1em', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.3s' }}>
-            <ShoppingCart size={15} />
-            {added ? '✓ AGREGADO AL CARRITO' : 'AGREGAR AL CARRITO'}
+            style={{
+              flex: 1, padding: '12px', borderRadius: 999,
+              background: added ? 'var(--whatsapp)' : 'var(--ink)',
+              color: '#fff',
+              fontSize: '0.82rem', fontWeight: 600,
+              border: 'none', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              transition: 'all 0.3s',
+            }}>
+            <ShoppingBag size={14} />
+            {added ? '✓ Agregado' : 'Agregar'}
           </button>
           <button onClick={handleDirectWA}
-            style={{ width: '100%', padding: '11px', background: 'transparent', color: '#25D366', fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.95rem', letterSpacing: '0.1em', border: '1.5px solid #25D366', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.2s' }}>
-            <MessageCircle size={15} />
-            PEDIR POR WHATSAPP
+            aria-label="Pedir por WhatsApp"
+            style={{
+              width: 44, height: 44, padding: 0, borderRadius: '50%',
+              background: 'var(--surface)', color: 'var(--whatsapp)',
+              border: '1.5px solid var(--line)',
+              cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s',
+              flexShrink: 0,
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--whatsapp)'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'var(--whatsapp)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface)'; e.currentTarget.style.color = 'var(--whatsapp)'; e.currentTarget.style.borderColor = 'var(--line)'; }}
+          >
+            <MessageCircle size={16} />
           </button>
         </div>
       </div>

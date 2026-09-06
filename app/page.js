@@ -1,262 +1,390 @@
-import Image from 'next/image';
 import Link from 'next/link';
-import { collection, getDocs, limit, query } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import ProductCard from '@/components/ProductCard';
 import HeroCarousel from '@/components/HeroCarousel';
 
+// Emojis de bandera / icono por defecto (fallback si el admin no especifica)
+const ICONO_LIGA = {
+  'Premier League': { emoji: '⚽', tag: 'PL' },
+  'LaLiga': { emoji: '🇪🇸', tag: 'ES' },
+  'Serie A': { emoji: '🇮🇹', tag: 'IT' },
+  'Bundesliga': { emoji: '🇩🇪', tag: 'DE' },
+  'Ligue 1': { emoji: '🇫🇷', tag: 'FR' },
+  'MLS': { emoji: '🇺🇸', tag: 'US' },
+  'Selecciones': { emoji: '🌍', tag: 'INT' },
+  'Retro': { emoji: '🕰️', tag: 'CLÁSICO' },
+  'Entrenamiento': { emoji: '🎽', tag: 'TRAIN' },
+  'Liga Colombiana': { emoji: '🇨🇴', tag: 'COL' },
+};
+
+// Productos placeholder para cuando Firebase esté vacío
+const PLACEHOLDERS = [
+  { id: 'ph-1', nombre: 'Camiseta Local Real Madrid 26/27', precio: 189000, categoria: 'LaLiga', liga: 'LaLiga', descripcion: 'La nueva camiseta local del Real Madrid para la temporada 26/27.', destacado: true, especial: 'NUEVO' },
+  { id: 'ph-2', nombre: 'Camiseta Visitante FC Barcelona 26/27', precio: 189000, categoria: 'LaLiga', liga: 'LaLiga', descripcion: 'Diseño visitante del FC Barcelona con detalles conmemorativos.' },
+  { id: 'ph-3', nombre: 'Camiseta Local Manchester City 26/27', precio: 195000, categoria: 'Premier League', liga: 'Premier League', descripcion: 'La icónica camiseta celeste del City.', especial: 'NUEVO' },
+  { id: 'ph-4', nombre: 'Camiseta Local Inter Miami 26/27', precio: 219000, categoria: 'MLS', liga: 'MLS', descripcion: 'La camiseta rosada del equipo de Messi.', especial: 'PREVENTA' },
+  { id: 'ph-5', nombre: 'Camiseta Selección Argentina Home', precio: 179000, categoria: 'Selecciones', liga: 'Selecciones', descripcion: 'Tres estrellas sobre el pecho.' },
+  { id: 'ph-6', nombre: 'Camiseta Retro Brasil 1970', precio: 159000, categoria: 'Retro', liga: 'Retro', descripcion: 'Homenaje al Brasil de Pelé.', especial: 'RETRO' },
+];
+
+// Banner publicitario por defecto (fallback)
+const BANNER_DEFAULT = {
+  activo: true,
+  titulo: 'Espacio Publicitario Disponible',
+  subtitulo: 'Anuncia tu negocio aquí',
+  precio_o_oferta: 'Contáctanos por WhatsApp',
+  cta: 'Más información',
+  href: 'https://wa.me/573174721539?text=Hola%20Lucasports!%20Quiero%20publicidad%20en%20su%20sitio',
+  imagen: '',
+  color_fondo: '#0B0B0B',
+  color_texto: '#FFFFFF',
+  color_acento: '#FFE066',
+};
+
 async function getProductos() {
   try {
-    const q = query(collection(db, 'productos'), limit(3));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const snapshot = await getDocs(collection(db, 'productos'));
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch {
     return [];
   }
 }
 
+async function getBannersHero() {
+  try {
+    const snapshot = await getDocs(collection(db, 'banners_hero'));
+    return snapshot.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(b => b.activo !== false)
+      .sort((a, b) => (a.orden || 0) - (b.orden || 0));
+  } catch {
+    return [];
+  }
+}
+
+async function getBannerPublicitario() {
+  try {
+    const snap = await getDoc(doc(db, 'config', 'banner_publicitario'));
+    if (snap.exists()) return { ...BANNER_DEFAULT, ...snap.data() };
+    return BANNER_DEFAULT;
+  } catch {
+    return BANNER_DEFAULT;
+  }
+}
+
 export default async function HomePage() {
-  const productos = await getProductos();
+  const productosFB = await getProductos();
+  const productos = productosFB.length > 0 ? productosFB : PLACEHOLDERS;
+  const destacados = productos.slice(0, 6);
+
+  // Slides del hero desde admin (Firestore)
+  const slidesAdmin = await getBannersHero();
+  const heroProductos = productos.slice(0, 5);
+
+  // Ligas dinámicas: solo las que tienen productos publicados
+  const ligasConInventario = Array.from(
+    new Set(productos.map(p => p.categoria || p.liga).filter(Boolean))
+  ).map(nombre => ({
+    label: nombre,
+    href: `/productos?cat=${encodeURIComponent(nombre)}`,
+    emoji: ICONO_LIGA[nombre]?.emoji || '⚽',
+    tag: ICONO_LIGA[nombre]?.tag || nombre.slice(0, 3).toUpperCase(),
+    count: productos.filter(p => (p.categoria || p.liga) === nombre).length,
+  }));
+
+  const banner = await getBannerPublicitario();
 
   return (
-    <div style={{ paddingTop: 64 }}>
+    <>
+      {/* HERO */}
+      <HeroCarousel productos={heroProductos} slidesAdmin={slidesAdmin} />
 
-      {/* ═══════════════════════ HERO ═══════════════════════ */}
-      <section>
-        <HeroCarousel />
-        {/* Círculos decorativos de fondo */}
-        <div style={{ position: 'absolute', right: '-8%', top: '50%', transform: 'translateY(-50%)', width: '55%', height: '130%', borderRadius: '50%', border: '1px solid rgba(252,209,22,0.07)', background: 'rgba(252,209,22,0.025)' }} />
-        <div style={{ position: 'absolute', right: '4%', top: '50%', transform: 'translateY(-50%)', width: '38%', height: '110%', borderRadius: '50%', border: '1px solid rgba(252,209,22,0.05)', background: 'rgba(206,17,38,0.02)' }} />
-        {/* Logo decorativo */}
-<div style={{
-  position: 'absolute', right: '8%', top: '50%',
-  transform: 'translateY(-50%)',
-  width: 300, height: 300,
-  borderRadius: '50%',
-  overflow: 'hidden',
-  opacity: 0.12,
-  userSelect: 'none',
-  pointerEvents: 'none',
-}}>
-  {/* eslint-disable-next-line @next/next/no-img-element */}
-  <img
-    src="/logo.png"
-    alt=""
-    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-  />
-</div>
-        <div style={{ position: 'absolute', left: '2%', bottom: '10%', fontSize: '5rem', opacity: 0.06, userSelect: 'none' }}>🏆</div>
-
-        <div className="max-w-7xl mx-auto px-4 w-full">
-          <div style={{ maxWidth: 680 }}>
-            {/* Badge */}
-            <div className="animate-fade-up" style={{ animationDelay: '0.1s', opacity: 0, animationFillMode: 'forwards', marginBottom: 24 }}>
-              <span style={{
-                background: '#FCD116', color: '#000',
-                fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.8rem',
-                letterSpacing: '0.3em', padding: '5px 18px', display: 'inline-block'
+      {/* CATEGORÍAS / LIGAS — solo las que tienen inventario */}
+      {ligasConInventario.length > 0 && (
+        <section style={{ padding: '40px 0 20px', background: 'var(--bg)' }}>
+          <div className="container-wide">
+            <div style={{
+              display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
+              marginBottom: 18, flexWrap: 'wrap', gap: 12,
+            }}>
+              <div>
+                <p style={{
+                  color: 'var(--muted)', fontSize: '0.72rem', fontWeight: 600,
+                  letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4,
+                }}>
+                  Explora por liga
+                </p>
+                <h2 style={{
+                  fontFamily: 'var(--font-display)', fontWeight: 700,
+                  fontSize: 'clamp(1.15rem, 2vw, 1.5rem)', color: 'var(--ink)',
+                  letterSpacing: '-0.01em',
+                }}>
+                  Encuentra la de tu equipo
+                </h2>
+              </div>
+              <Link href="/productos" style={{
+                fontFamily: 'var(--font-display)', fontWeight: 600,
+                fontSize: '0.82rem', color: 'var(--ink)',
+                textDecoration: 'none', borderBottom: '1.5px solid var(--ink)', paddingBottom: 2,
               }}>
-                🇨🇴 RUMBO AL MUNDIAL 2026
-              </span>
+                Ver todas →
+              </Link>
             </div>
 
-            {/* Título */}
-            <h1 className="animate-fade-up" style={{
-              fontFamily: 'Bebas Neue, sans-serif',
-              fontSize: 'clamp(3.8rem, 10vw, 7.5rem)',
-              lineHeight: 0.88, color: '#fff',
-              animationDelay: '0.2s', opacity: 0, animationFillMode: 'forwards'
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+              gap: 10,
             }}>
-              VISTE LOS<br />
-              <span style={{ color: '#FCD116' }}>COLORES</span><br />
-              DE COLOMBIA
-            </h1>
-
-            {/* Subtítulo */}
-            <p className="animate-fade-up" style={{
-              color: '#8899bb', fontSize: '1.05rem', lineHeight: 1.75,
-              marginTop: 24, marginBottom: 12,
-              animationDelay: '0.33s', opacity: 0, animationFillMode: 'forwards'
-            }}>
-              Camisetas oficiales y conmemorativas de la Selección Colombia.<br />
-              Desde <strong style={{ color: '#FCD116' }}>Manizales</strong> para todo el país 🇨🇴
-            </p>
-
-            {/* Íconos de garantía */}
-            <div className="animate-fade-up" style={{
-              display: 'flex', gap: 20, flexWrap: 'wrap', marginBottom: 36,
-              animationDelay: '0.4s', opacity: 0, animationFillMode: 'forwards'
-            }}>
-              {[
-                { icon: '💵', text: 'Pago contra entrega' },
-                { icon: '📦', text: 'Envíos a toda Colombia' },
-                { icon: '✅', text: 'Productos oficiales' },
-              ].map(g => (
-                <div key={g.text} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: '1rem' }}>{g.icon}</span>
-                  <span style={{ color: '#aaa', fontSize: '0.82rem' }}>{g.text}</span>
-                </div>
+              {ligasConInventario.map(c => (
+                <Link key={c.label} href={c.href} style={{ textDecoration: 'none' }} className="category-card">
+                  <div style={{
+                    background: 'var(--surface)', border: '1px solid var(--line)',
+                    borderRadius: 12, padding: '14px 14px',
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    cursor: 'pointer',
+                  }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 8,
+                      background: 'var(--surface-alt)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '1.1rem', flexShrink: 0,
+                    }}>
+                      {c.emoji}
+                    </div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <p style={{
+                        fontWeight: 600, fontSize: '0.85rem', color: 'var(--ink)',
+                        lineHeight: 1.2,
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      }}>
+                        {c.label}
+                      </p>
+                      <p style={{ fontSize: '0.68rem', color: 'var(--muted)', marginTop: 2 }}>
+                        {c.count} {c.count === 1 ? 'artículo' : 'artículos'}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
               ))}
             </div>
+          </div>
+        </section>
+      )}
 
-            {/* CTAs */}
-            <div className="animate-fade-up" style={{
-              display: 'flex', gap: 14, flexWrap: 'wrap',
-              animationDelay: '0.5s', opacity: 0, animationFillMode: 'forwards'
+      {/* BANNER PUBLICITARIO EDITABLE */}
+      {banner.activo && (
+        <section style={{ padding: '24px 0', background: 'var(--bg)' }}>
+          <div className="container-wide">
+            <div style={{
+              background: banner.color_fondo || '#0B0B0B',
+              borderRadius: 18,
+              padding: 'clamp(24px, 3.5vw, 40px)',
+              color: banner.color_texto || '#fff',
+              display: 'grid',
+              gridTemplateColumns: banner.imagen ? '1fr 200px' : '1fr auto',
+              alignItems: 'center',
+              gap: 28,
+              position: 'relative',
+              overflow: 'hidden',
+              border: '1px solid rgba(255,255,255,0.06)',
             }}>
-              <Link href="/productos">
-                <button style={{
-                  background: '#FCD116', color: '#000',
-                  fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.1rem',
-                  letterSpacing: '0.15em', padding: '16px 40px',
-                  border: 'none', cursor: 'pointer', transition: 'all 0.3s'
+              <div style={{ position: 'relative', zIndex: 2, maxWidth: 600 }}>
+                <p style={{
+                  fontSize: '0.68rem', opacity: 0.7, marginBottom: 8,
+                  letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600,
                 }}>
-                  VER CATÁLOGO →
-                </button>
-              </Link>
-              <a href="https://wa.me/573174721539?text=Hola%20Luca'Sports!%20Quiero%20ver%20los%20productos%20disponibles%20🇨🇴" target="_blank">
-                <button style={{
-                  background: '#25D366', color: '#fff',
-                  fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.1rem',
-                  letterSpacing: '0.12em', padding: '16px 36px',
-                  border: 'none', cursor: 'pointer', transition: 'all 0.3s'
+                  Publicidad
+                </p>
+                {banner.subtitulo && (
+                  <p style={{
+                    fontSize: '0.78rem', opacity: 0.85, marginBottom: 10,
+                  }}>
+                    {banner.subtitulo}
+                  </p>
+                )}
+                <h3 style={{
+                  fontFamily: 'var(--font-display)', fontWeight: 800,
+                  fontSize: 'clamp(1.6rem, 3.4vw, 2.4rem)', lineHeight: 1.04,
+                  letterSpacing: '-0.02em', marginBottom: 8,
                 }}>
-                  💬 PEDIR POR WHATSAPP
-                </button>
-              </a>
+                  {banner.titulo}
+                </h3>
+                {banner.precio_o_oferta && (
+                  <p style={{
+                    fontWeight: 600, fontSize: '1rem', marginBottom: 18,
+                    color: banner.color_acento || '#FFE066',
+                  }}>
+                    {banner.precio_o_oferta}
+                  </p>
+                )}
+                <a
+                  href={banner.href || '#'}
+                  target={banner.href?.startsWith('http') ? '_blank' : '_self'}
+                  rel="noreferrer"
+                  style={{ textDecoration: 'none' }}
+                >
+                  <button style={{
+                    background: banner.color_texto || '#fff',
+                    color: banner.color_fondo || 'var(--ink)',
+                    padding: '11px 22px', borderRadius: 999,
+                    border: 'none', cursor: 'pointer',
+                    fontWeight: 600, fontSize: '0.88rem',
+                  }}>
+                    {banner.cta || 'Ver más'} →
+                  </button>
+                </a>
+              </div>
+
+              <div style={{
+                position: 'relative', width: banner.imagen ? 200 : 140,
+                height: banner.imagen ? 160 : 140, flexShrink: 0,
+              }} className="hidden md:block">
+                {banner.imagen ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={banner.imagen}
+                    alt={banner.titulo}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                ) : (
+                  <>
+                    <div style={{
+                      position: 'absolute', inset: 0,
+                      borderRadius: '50%',
+                      background: `radial-gradient(circle at 30% 30%, ${banner.color_acento || '#FFE066'}44, transparent 60%)`,
+                    }} />
+                    <div style={{
+                      position: 'absolute', inset: 20,
+                      borderRadius: '50%',
+                      background: 'rgba(255,255,255,0.08)',
+                      border: '1px solid rgba(255,255,255,0.15)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '3.5rem',
+                    }}>
+                      📣
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* Banda tricolor */}
-      <div style={{ display: 'flex', height: 7 }}>
-        <div style={{ flex: 4, background: '#FCD116' }} />
-        <div style={{ flex: 2, background: '#003893' }} />
-        <div style={{ flex: 2, background: '#CE1126' }} />
-      </div>
-
-      {/* ═══════════════════════ GARANTÍAS ═══════════════════════ */}
-      <section style={{ background: '#0c0c0c', padding: '50px 0' }}>
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          {[
-            { icon: '💵', title: 'Contra Entrega', desc: 'Pagas solo al recibir' },
-            { icon: '📦', title: 'Envío Nacional', desc: 'Llegamos a toda Colombia' },
-            { icon: '👕', title: 'Oficial & Réplica', desc: 'Camisetas de alta calidad' },
-            { icon: '💬', title: 'Atención WhatsApp', desc: 'Respuesta rápida garantizada' },
-          ].map(g => (
-            <div key={g.title} style={{ padding: '20px 10px' }}>
-              <p style={{ fontSize: '2.2rem', marginBottom: 8 }}>{g.icon}</p>
-              <p style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#FCD116', fontSize: '1rem', letterSpacing: '0.08em', marginBottom: 4 }}>
-                {g.title}
-              </p>
-              <p style={{ color: '#555', fontSize: '0.8rem' }}>{g.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══════════════════════ PRODUCTOS DESTACADOS ═══════════════════════ */}
-      <section style={{ padding: '80px 0' }}>
-        <div className="max-w-7xl mx-auto px-4">
-          <div style={{ marginBottom: 48, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+      {/* PRODUCTOS DESTACADOS */}
+      <section style={{ padding: '40px 0 64px', background: 'var(--bg)' }}>
+        <div className="container-wide">
+          <div style={{
+            display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
+            marginBottom: 24, flexWrap: 'wrap', gap: 12,
+          }}>
             <div>
-              <p style={{ color: '#FCD116', fontFamily: 'Bebas Neue, sans-serif', letterSpacing: '0.25em', fontSize: '0.8rem', marginBottom: 6 }}>
-                COLECCIÓN 2025 / 2026
+              <p style={{ color: 'var(--muted)', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>
+                Nuevas camisetas
               </p>
-              <h2 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 'clamp(2rem, 5vw, 3.5rem)', color: '#fff', lineHeight: 0.95 }}>
-                NUESTROS<br /><span style={{ color: '#FCD116' }}>PRODUCTOS</span>
+              <h2 style={{
+                fontFamily: 'var(--font-display)', fontWeight: 700,
+                fontSize: 'clamp(1.4rem, 2.5vw, 1.9rem)', color: 'var(--ink)',
+                letterSpacing: '-0.01em',
+              }}>
+                Lo más nuevo de la temporada
               </h2>
             </div>
-            <Link href="/productos"
-              style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#FCD116', letterSpacing: '0.12em', fontSize: '0.9rem', textDecoration: 'none', border: '1px solid #FCD11655', padding: '8px 20px' }}>
-              VER TODOS →
+            <Link href="/productos" style={{
+              fontFamily: 'var(--font-display)', fontWeight: 600,
+              fontSize: '0.82rem', color: 'var(--ink)',
+              textDecoration: 'none', borderBottom: '1.5px solid var(--ink)', paddingBottom: 2,
+            }}>
+              Ver catálogo completo →
             </Link>
           </div>
 
-          {productos.length === 0 ? (
-            /* Tarjetas estáticas si Firebase no tiene datos aún */
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                { nombre: 'Camiseta Oficial Local Colombia 2026', precio: 0, categoria: 'Oficial', descripcion: 'La camiseta de la Selección Colombia para el Mundial 2026. Versión local.', especial: 'MUNDIAL 2026' },
-                { nombre: 'Camiseta Entrenamiento Oficial Blanca', precio: 0, categoria: 'Entrenamiento', descripcion: 'Camiseta oficial de entrenamiento de la Selección Colombia. Color blanco.' },
-                { nombre: 'Camiseta Conmemorativa 100 Años', precio: 0, categoria: 'Edición Especial', descripcion: 'Edición limitada conmemorativa por los 100 años de la Federación Colombiana de Fútbol.', especial: 'EDICIÓN LIMITADA' },
-              ].map((p, i) => (
-                <div key={i} className="card-producto" style={{ padding: 0 }}>
-                  <div style={{ height: 260, background: 'linear-gradient(135deg, #1a1a1a, #0d1a2e)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                    <span style={{ fontSize: '6rem' }}>👕</span>
-                    {p.especial && (
-                      <span style={{ position: 'absolute', top: 12, right: 12, background: '#CE1126', color: '#fff', fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.7rem', letterSpacing: '0.1em', padding: '3px 10px' }}>
-                        {p.especial}
-                      </span>
-                    )}
-                    <span style={{ position: 'absolute', top: 12, left: 12, background: '#003893', color: '#FCD116', fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.7rem', letterSpacing: '0.1em', padding: '3px 10px' }}>
-                      {p.categoria}
-                    </span>
-                  </div>
-                  <div style={{ padding: '18px 16px' }}>
-                    <h3 style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#fff', fontSize: '1.1rem', lineHeight: 1.2, marginBottom: 8 }}>{p.nombre}</h3>
-                    <p style={{ color: '#666', fontSize: '0.8rem', lineHeight: 1.5, marginBottom: 14 }}>{p.descripcion}</p>
-                    <a href="https://wa.me/573174721539?text=Hola!%20Me%20interesa%20la%20camiseta%20" target="_blank">
-                      <button style={{ width: '100%', padding: '12px', background: '#25D366', color: '#fff', fontFamily: 'Bebas Neue, sans-serif', fontSize: '0.95rem', letterSpacing: '0.1em', border: 'none', cursor: 'pointer' }}>
-                        💬 CONSULTAR PRECIO
-                      </button>
-                    </a>
-                  </div>
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+            style={{ gap: 20 }}
+          >
+            {destacados.map(p => <ProductCard key={p.id} product={p} />)}
+          </div>
+        </div>
+      </section>
+
+      {/* BENEFICIOS — pie de página del home, antes del CTA */}
+      <section style={{
+        padding: '40px 0', background: 'var(--surface)',
+        borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)',
+      }}>
+        <div className="container-wide">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: 24,
+          }}>
+            {[
+              { icon: '💵', title: 'Pago contra entrega', desc: 'Paga solo cuando recibes tu pedido.' },
+              { icon: '📦', title: 'Envíos a toda Colombia', desc: '2 a 5 días hábiles según ciudad.' },
+              { icon: '⭐', title: 'Productos oficiales', desc: 'Alta calidad, oficiales y réplicas premium.' },
+              { icon: '💬', title: 'Atención WhatsApp', desc: 'Lunes a sábado, 8am a 8pm.' },
+            ].map(b => (
+              <div key={b.title} style={{ display: 'flex', gap: 12 }}>
+                <div style={{
+                  width: 40, height: 40, borderRadius: 10,
+                  background: 'var(--surface-alt)', border: '1px solid var(--line)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.15rem', flexShrink: 0,
+                }}>
+                  {b.icon}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {productos.map(p => <ProductCard key={p.id} product={p} />)}
-            </div>
-          )}
+                <div>
+                  <p style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--ink)', marginBottom: 2 }}>
+                    {b.title}
+                  </p>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--muted)', lineHeight: 1.45 }}>
+                    {b.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ═══════════════════════ BANNER MUNDIAL ═══════════════════════ */}
-      <section style={{ background: 'linear-gradient(90deg, #FCD116 0%, #f5c800 100%)', padding: '60px 0' }}>
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <p style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 'clamp(2.5rem, 7vw, 5rem)', color: '#003893', lineHeight: 0.9, marginBottom: 16 }}>
-            COLOMBIA AL MUNDIAL 2026 🏆
+      {/* CTA WHATSAPP */}
+      <section style={{ padding: '64px 0', background: 'var(--bg)' }}>
+        <div className="container-wide" style={{ maxWidth: 720, textAlign: 'center' }}>
+          <p style={{
+            fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.15em',
+            textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 10,
+          }}>
+            ¿Dudas sobre tallas, precios o envíos?
           </p>
-          <p style={{ color: '#00286e', fontSize: '1rem', marginBottom: 32, maxWidth: 500, margin: '0 auto 32px' }}>
-            Luce los colores de la Tricolor con orgullo. Somos de Manizales y enviamos a toda Colombia.
-          </p>
-          <Link href="/productos">
-            <button style={{ background: '#003893', color: '#FCD116', fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.1rem', letterSpacing: '0.15em', padding: '16px 48px', border: 'none', cursor: 'pointer' }}>
-              VER CATÁLOGO COMPLETO →
-            </button>
-          </Link>
-        </div>
-      </section>
-
-      {/* ═══════════════════════ CTA WHATSAPP ═══════════════════════ */}
-      <section style={{ background: '#0A0A0A', padding: '70px 0' }}>
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <p style={{ fontFamily: 'Bebas Neue, sans-serif', color: '#FCD11666', letterSpacing: '0.25em', fontSize: '0.85rem', marginBottom: 12 }}>
-            ¿DUDAS SOBRE TALLAS, PRECIOS O ENVÍOS?
-          </p>
-          <h2 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 'clamp(2rem, 5vw, 4rem)', color: '#fff', marginBottom: 14 }}>
-            ESCRÍBENOS SIN COMPROMISO
+          <h2 style={{
+            fontFamily: 'var(--font-display)', fontWeight: 800,
+            fontSize: 'clamp(1.8rem, 4vw, 2.6rem)', color: 'var(--ink)',
+            letterSpacing: '-0.02em', lineHeight: 1.05, marginBottom: 14,
+          }}
+          className="text-balance">
+            Escríbenos sin compromiso
           </h2>
-          <p style={{ color: '#555', marginBottom: 36, fontSize: '0.95rem', lineHeight: 1.7 }}>
-            Respondemos rápido · Pago contra entrega · Envíos a toda Colombia<br />
-            <strong style={{ color: '#FCD116' }}>El cliente asume el costo del envío</strong>
+          <p style={{
+            fontSize: '0.95rem', color: 'var(--muted)', lineHeight: 1.55,
+            marginBottom: 28, maxWidth: 500, margin: '0 auto 28px',
+          }}>
+            Respondemos rápido. Pago contra entrega en toda Colombia.
           </p>
-          <a href="https://wa.me/573174721539?text=Hola%20Luca'Sports!%20Quiero%20información%20sobre%20las%20camisetas%20🇨🇴" target="_blank">
-            <button style={{
-              background: '#25D366', color: '#fff',
-              fontFamily: 'Bebas Neue, sans-serif', fontSize: '1.2rem',
-              letterSpacing: '0.15em', padding: '18px 56px',
-              border: 'none', cursor: 'pointer'
-            }}>
-              💬 ABRIR WHATSAPP — 317 472 1539
+          <a
+            href="https://wa.me/573174721539?text=Hola%20Lucasports!%20Quiero%20info%20sobre%20las%20camisetas"
+            target="_blank"
+            rel="noreferrer"
+            style={{ textDecoration: 'none' }}
+          >
+            <button className="btn-whatsapp" style={{ padding: '14px 34px', fontSize: '0.95rem' }}>
+              💬 Abrir WhatsApp — 317 472 1539
             </button>
           </a>
         </div>
       </section>
-
-    </div>
+    </>
   );
 }

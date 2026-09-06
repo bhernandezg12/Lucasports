@@ -1,95 +1,187 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-/* ✅ Tailwind v4: reemplaza los 3 @tailwind directives por esta sola línea */
 @import "tailwindcss";
 
-/* ✅ Tailwind v4: clases propias con @utility (reemplaza @apply) */
-@utility btn-primary {
-  background-color: #FCD116;
-  color: #000000;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  padding: 12px 32px;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-@utility btn-secondary {
-  background-color: transparent;
-  color: #FCD116;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  padding: 12px 32px;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  border: 2px solid #FCD116;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.card-producto {
-  background-color: #FFFFFF;
-  border: 1px solid #E5E7EB;
-  overflow: hidden;
-  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
-}
-
-.card-producto:hover {
-  border-color: #FCD116;
-  transform: translateY(-5px);
-  box-shadow: 0 12px 40px rgba(0, 56, 147, 0.12);
-}
-
-@utility animate-fade-up {
-  animation: fadeInUp 0.7s ease forwards;
-}
-
-@utility animate-slide-left {
-  animation: slideInLeft 0.6s ease forwards;
-}
-
-/* Variables CSS */
+/* ══════════════════════════════════════════════════════
+   SISTEMA DE DISEÑO — Lucasports 26/27
+   Estilo Figma: minimalista, blanco, tipografía sans grande
+   ══════════════════════════════════════════════════════ */
 :root {
-  --amarillo:     #FCD116;
-  --azul:         #003893;
-  --rojo:         #CE1126;
-  --fondo:        #F8F9FA;      /* ← antes era #0A0A0A, ahora gris muy claro */
-  --fondo-card:   #FFFFFF;      /* blanco puro para las tarjetas */
-  --texto:        #111827;      /* casi negro pero suave */
-  --texto-suave:  #6B7280;      /* gris para subtítulos */
-  --borde:        #E5E7EB;      /* borde muy sutil */
+  /* Colores principales */
+  --bg:            #F5F5F2;   /* fondo general cálido */
+  --surface:       #FFFFFF;   /* tarjetas y superficies */
+  --surface-alt:   #FAFAF7;   /* fondo alterno suave */
+  --ink:           #0B0B0B;   /* texto principal */
+  --ink-soft:      #2A2A2A;
+  --muted:         #6B6B6B;   /* texto secundario */
+  --muted-2:       #9A9A9A;
+  --line:          #E7E7E4;   /* bordes sutiles */
+  --line-strong:   #D6D6D2;
+
+  /* Acentos comerciales */
+  --accent:        #0B0B0B;   /* negro para botones principales */
+  --accent-hover:  #2A2A2A;
+  --season:        #FF3B30;   /* rojo intenso para "NUEVO" y ofertas */
+  --whatsapp:      #22C55E;   /* verde WhatsApp moderno */
+  --whatsapp-h:    #16A34A;
+  --highlight:     #FFF3B0;   /* amarillo pastel muy suave */
+
+  /* Tipografías */
+  --font-display:  'Inter', system-ui, sans-serif;
+  --font-body:     'Inter', system-ui, sans-serif;
+  --font-mono:     'Space Grotesk', monospace;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-  background-color: var(--fondo);   /* ← cambia de negro a gris claro */
-  color: var(--texto);
+html, body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Hover states */
-.btn-primary:hover   { background-color: #ffffff; color: #000; }
-.btn-secondary:hover { background-color: #FCD116; color: #000; }
+/* ══════════════════════════════════════════════════════
+   COMPONENTES
+   ══════════════════════════════════════════════════════ */
+@utility btn-primary {
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 14px 32px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
 
-/* Animaciones */
+@utility btn-outline {
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 13px 30px;
+  border-radius: 999px;
+  border: 1.5px solid var(--ink);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+}
+.btn-outline:hover { background: var(--ink); color: #fff; }
+
+@utility btn-whatsapp {
+  background: var(--whatsapp);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 14px 28px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+.btn-whatsapp:hover { background: var(--whatsapp-h); }
+
+.card-producto {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+.card-producto:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -20px rgba(0,0,0,0.12);
+}
+
+/* Chip / badge */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.chip-dark  { background: var(--ink); color: #fff; }
+.chip-light { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+.chip-red   { background: var(--season); color: #fff; }
+
+/* ══════════════════════════════════════════════════════
+   ANIMACIONES
+   ══════════════════════════════════════════════════════ */
+@utility animate-fade-up {
+  animation: fadeInUp 0.7s ease forwards;
+  opacity: 0;
+}
+@utility animate-slide-left {
+  animation: slideInLeft 0.6s ease forwards;
+  opacity: 0;
+}
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
+  from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-40px); }
+  from { opacity: 0; transform: translateX(-32px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-@keyframes spin {
-  to { transform: rotate(360deg); }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.6; }
 }
 
-/* Scrollbar */
-::-webkit-scrollbar       { width: 6px; }
-::-webkit-scrollbar-track { background: #0A0A0A; }
-::-webkit-scrollbar-thumb { background: #FCD116; }
+/* ══════════════════════════════════════════════════════
+   SCROLLBAR
+   ══════════════════════════════════════════════════════ */
+::-webkit-scrollbar       { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--surface-alt); }
+::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted-2); }
+
+/* ══════════════════════════════════════════════════════
+   UTILIDADES
+   ══════════════════════════════════════════════════════ */
+.container-wide {
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+.text-balance { text-wrap: balance; }
+
+/* Category cards hover */
+.category-card > div { transition: all 0.2s ease; }
+.category-card:hover > div { border-color: var(--ink); box-shadow: 0 6px 18px -8px rgba(0,0,0,0.12); }
+
+/* Placeholder para imágenes faltantes: patrón visual limpio */
+.placeholder-jersey {
+  background:
+    linear-gradient(135deg, #F0F0EC 0%, #E7E7E4 100%),
+    repeating-linear-gradient(45deg, transparent, transparent 12px, rgba(0,0,0,0.03) 12px, rgba(0,0,0,0.03) 13px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-2);
+}
