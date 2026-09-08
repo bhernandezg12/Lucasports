@@ -60,7 +60,8 @@ export default function Footer() {
               {[
                 { href: '/', label: 'Inicio' },
                 { href: '/productos', label: 'Catálogo' },
-                { href: '/productos?cat=Selecciones', label: 'Selecciones' },
+                { href: '/ofertas', label: 'Ofertas' },
+                { href: '/productos?cat=Infantil', label: 'Infantil' },
                 { href: '/productos?cat=Retro', label: 'Retro' },
                 { href: '/contacto', label: 'Contacto' },
               ].map(l => (
@@ -122,7 +123,24 @@ export default function Footer() {
             © {new Date().getFullYear()} Lucasports — Manizales, Colombia
           </p>
           <p style={{ color: 'var(--muted-2)', fontSize: '0.78rem' }}>
-            Hecho con pasión para los amantes del fútbol
+            Hecho por{' '}
+            <a
+              href="https://wa.me/573174721539?text=Hola%20Ingeniatec!%20Quiero%20una%20p%C3%A1gina%20web"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontWeight: 800,
+                textDecoration: 'none',
+                background: 'linear-gradient(90deg, var(--ink) 0%, var(--season) 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                letterSpacing: '0.02em',
+              }}
+            >
+              Ingeniatec
+            </a>{' '}
+            para los amantes del fútbol
           </p>
         </div>
       </div>

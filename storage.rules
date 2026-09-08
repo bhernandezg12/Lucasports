@@ -1,0 +1,36 @@
+// ═══════════════════════════════════════════════════════════════════════
+// REGLAS DE STORAGE - Lucasports
+// Cópialas y pégalas en: Firebase Console → Storage → Rules
+// URL: https://console.firebase.google.com/project/_/storage/rules
+// ═══════════════════════════════════════════════════════════════════════
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Imágenes de productos, slides y banners: lectura pública, escritura abierta
+    match /productos/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    match /banners_hero/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    match /banner_publicitario/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

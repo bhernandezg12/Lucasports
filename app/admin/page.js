@@ -11,10 +11,13 @@ import {
   LayoutDashboard, Images, Megaphone, LogOut,
 } from 'lucide-react';
 
-const TALLAS_DISPONIBLES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+const TALLAS_ADULTO = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+const TALLAS_INFANTIL = ['10', '12', '14', '16', '18'];
+const CATEGORIAS_INFANTILES = ['Infantil'];
 const CATEGORIAS_SUGERIDAS = [
   'Premier League', 'LaLiga', 'Serie A', 'Bundesliga', 'Ligue 1',
   'MLS', 'Selecciones', 'Retro', 'Entrenamiento', 'Liga Colombiana',
+  'Infantil',
 ];
 const PASSWORD_ADMIN = 'lucasports2026';
 const MAX_IMAGENES = 5;
@@ -167,6 +170,10 @@ export default function AdminPage() {
       tallas: p.tallas.includes(t) ? p.tallas.filter(x => x !== t) : [...p.tallas, t],
     }));
   };
+
+  // Tallas según la categoría seleccionada
+  const esInfantil = CATEGORIAS_INFANTILES.includes(form.categoria);
+  const tallasVisibles = esInfantil ? TALLAS_INFANTIL : TALLAS_ADULTO;
 
   const handleGuardar = async () => {
     if (!form.nombre) { setMsg({ text: '❌ El nombre es obligatorio', ok: false }); return; }
@@ -456,7 +463,14 @@ export default function AdminPage() {
                   </label>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
                     {categoriasDisponibles.map(c => (
-                      <button key={c} type="button" onClick={() => setForm(p => ({ ...p, categoria: c }))}
+                      <button key={c} type="button" onClick={() => setForm(p => {
+                        const cambia = CATEGORIAS_INFANTILES.includes(c) !== CATEGORIAS_INFANTILES.includes(p.categoria);
+                        return {
+                          ...p,
+                          categoria: c,
+                          tallas: cambia ? (CATEGORIAS_INFANTILES.includes(c) ? ['10', '12', '14', '16'] : ['S', 'M', 'L', 'XL']) : p.tallas,
+                        };
+                      })}
                         style={{
                           padding: '7px 14px', borderRadius: 999,
                           background: form.categoria === c ? 'var(--ink)' : 'var(--surface-alt)',
@@ -491,9 +505,11 @@ export default function AdminPage() {
                 </div>
 
                 <div>
-                  <label style={lbl}>Tallas disponibles</label>
+                  <label style={lbl}>
+                    Tallas disponibles {esInfantil && <span style={{ color: 'var(--season)', fontWeight: 700, marginLeft: 6 }}>· infantil (años)</span>}
+                  </label>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    {TALLAS_DISPONIBLES.map(t => (
+                    {tallasVisibles.map(t => (
                       <button key={t} type="button" onClick={() => handleTalla(t)}
                         style={{
                           width: 44, height: 44, borderRadius: 8,

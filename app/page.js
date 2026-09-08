@@ -4,6 +4,10 @@ import { db } from '@/lib/firebase';
 import ProductCard from '@/components/ProductCard';
 import HeroCarousel from '@/components/HeroCarousel';
 
+// Sin cache: siempre trae la data fresca de Firestore
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // Emojis de bandera / icono por defecto (fallback si el admin no especifica)
 const ICONO_LIGA = {
   'Premier League': { emoji: '⚽', tag: 'PL' },
@@ -16,6 +20,7 @@ const ICONO_LIGA = {
   'Retro': { emoji: '🕰️', tag: 'CLÁSICO' },
   'Entrenamiento': { emoji: '🎽', tag: 'TRAIN' },
   'Liga Colombiana': { emoji: '🇨🇴', tag: 'COL' },
+  'Infantil': { emoji: '🧒', tag: 'KIDS' },
 };
 
 // Productos placeholder para cuando Firebase esté vacío
