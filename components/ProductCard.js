@@ -5,6 +5,7 @@ import { useCart } from '@/context/CartContext';
 import Link from 'next/link';
 
 const TALLAS_DEFAULT = ['S', 'M', 'L', 'XL', 'XXL'];
+const TALLAS_INFANTIL_DEFAULT = ['10', '12', '14', '16', '18'];
 const WA_NUMBER = '573174721539';
 
 export default function ProductCard({ product }) {
@@ -37,7 +38,10 @@ export default function ProductCard({ product }) {
     window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(mensaje)}`, '_blank');
   };
 
-  const tallas = product.tallas?.length > 0 ? product.tallas : TALLAS_DEFAULT;
+  const esInfantil = (product.categoria || product.liga) === 'Infantil';
+  const tallas = product.tallas?.length > 0
+    ? product.tallas
+    : (esInfantil ? TALLAS_INFANTIL_DEFAULT : TALLAS_DEFAULT);
 
   return (
     <div className="card-producto">

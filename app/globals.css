@@ -185,3 +185,10 @@ html, body {
   justify-content: center;
   color: var(--muted-2);
 }
+
+/* Navbar responsive: logo y título más pequeños en móvil para que quepan los links */
+@media (max-width: 640px) {
+  .navbar-logo { width: 42px !important; height: 42px !important; }
+  .navbar-logo img { width: 42px !important; height: 42px !important; }
+  .navbar-title { font-size: 1.05rem !important; }
+}

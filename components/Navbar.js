@@ -27,31 +27,32 @@ export default function Navbar() {
         transition: 'border-color 0.2s ease',
       }}
     >
-      <div className="container-wide flex items-center justify-between" style={{ height: 84 }}>
+      <div className="container-wide flex items-center justify-between navbar-inner" style={{ height: 78 }}>
 
-        {/* Logo — más grande, identidad principal */}
-        <Link href="/" className="flex items-center gap-3" style={{ textDecoration: 'none' }}>
-          <div style={{
-            width: 60, height: 60, borderRadius: '50%', overflow: 'hidden',
+        {/* Logo — más grande, identidad principal (se achica en móvil) */}
+        <Link href="/" className="flex items-center navbar-brand" style={{ textDecoration: 'none', gap: 10, minWidth: 0 }}>
+          <div className="navbar-logo" style={{
+            width: 54, height: 54, borderRadius: '50%', overflow: 'hidden',
             background: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0,
           }}>
             <Image
               src="/logo.png"
               alt="Lucasports"
-              width={60}
-              height={60}
+              width={54}
+              height={54}
               style={{ borderRadius: '50%', objectFit: 'cover' }}
             />
           </div>
-          <div>
-            <p style={{
+          <div style={{ minWidth: 0 }}>
+            <p className="navbar-title" style={{
               fontFamily: 'var(--font-display)',
               fontWeight: 800,
-              fontSize: '1.55rem',
+              fontSize: '1.35rem',
               color: 'var(--ink)',
               lineHeight: 1,
               letterSpacing: '-0.02em',
+              whiteSpace: 'nowrap',
             }}>
               LUCASPORTS
             </p>
@@ -73,7 +74,7 @@ export default function Navbar() {
           {[
             { href: '/', label: 'Inicio' },
             { href: '/productos', label: 'Tienda' },
-            { href: '/productos?cat=Selecciones', label: 'Selecciones' },
+            { href: '/ofertas', label: 'Ofertas' },
             { href: '/contacto', label: 'Contacto' },
           ].map(l => (
             <Link
@@ -175,7 +176,7 @@ export default function Navbar() {
           {[
             { href: '/', label: 'Inicio' },
             { href: '/productos', label: 'Tienda' },
-            { href: '/productos?cat=Selecciones', label: 'Selecciones' },
+            { href: '/ofertas', label: 'Ofertas' },
             { href: '/contacto', label: 'Contacto' },
           ].map(l => (
             <Link
